@@ -16,6 +16,7 @@ import ComingSoon from './pages/ComingSoon'
 import Site from './pages/Site'
 import TheaterSpecial from './pages/TheaterSpecial'
 import Special3D from './pages/3D'
+import DetailMovie from './pages/DetailMovie'
 function App() {
 
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="/cultureplex" element={<><Nav /><Cultureplex /><Footer /></>} />
           <Route path="/theater/theaters-special" element={<><Nav /><TheaterSpecial /><Footer /></>} />
           <Route path="/theater/3d" element={<><Nav /><Special3D /><Footer /></>} />
+          <Route path="/movie/:slug" element={<><Nav /><DetailMovie /><Footer /></>} />
 
           <Route path="/login" element={<><Login /></>} />
           <Route path="*" element={<NotFound />} />
