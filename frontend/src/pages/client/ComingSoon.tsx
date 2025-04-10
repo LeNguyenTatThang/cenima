@@ -1,5 +1,5 @@
 import React from "react"
-import Movie from "../components/Movie"
+import Movie from "../../components/Movie"
 
 const ComingSoon = () => {
     const movies = [

@@ -4,7 +4,7 @@ import { EffectCoverflow, Autoplay, Pagination, Navigation } from "swiper/module
 import "swiper/css"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
-import Movie from "../components/Movie"
+import Movie from "../../components/Movie"
 import SwiperCore from 'swiper'
 SwiperCore.use([Navigation, Autoplay, EffectCoverflow, Pagination])
 const Home = () => {
@@ -57,7 +57,7 @@ const Home = () => {
             description: ""
         }
     ]
-    
+
     return isClient ? (
         <>
             <Swiper
