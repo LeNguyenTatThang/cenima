@@ -52,15 +52,10 @@ body {
   position: relative;
 }
 
-.logo {
-}
-
 .menu-icon {
   display: none;
 }
 
-.nav-elements {
-}
 
 .nav-elements ul {
   display: flex;
@@ -396,25 +391,6 @@ body {
   align-items: center;
 }
 
-.MuiBox-root {
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.MuiTextField-root {
-  margin-bottom: 15px;
-}
-
-.MuiButton-root {
-  margin-top: 15px;
-  font-weight: bold;
-}
-
-.MuiButton-root:hover {
-  background-color: #3b82f6;
-}
 
 .site {
   width: 100%;
@@ -567,22 +543,6 @@ body {
   gap: 12px;
 }
 
-h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-strong {
-  color: #ffffff;
-}
-
-i {
-  color: #e1d2d2;
-}
-
-hr {
-  margin: 10px 0 20px;
-}
 
 .description {
   margin-top: 30px;
