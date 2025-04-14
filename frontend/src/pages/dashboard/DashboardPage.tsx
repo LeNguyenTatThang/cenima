@@ -153,7 +153,7 @@ export default function DashboardPage() {
                     separator={<NavigateNextIcon fontSize="small" />}
                     aria-label="breadcrumb"
                 >
-                    <Link underline="hover" color="inherit" href="#">
+                    <Link underline="hover" color="inherit" href="/dashboard">
                         Dashboard
                     </Link>
                     <Typography color="text.primary">Trang chủ</Typography>
@@ -193,6 +193,16 @@ export default function DashboardPage() {
                         period={metricData.eventCount.period}
                         chartData={eventChartData}
                         chartColor="#2196f3"
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <MetricCard
+                        title="Số phim"
+                        value={metricData.conversions.value}
+                        change={metricData.conversions.change}
+                        period={metricData.conversions.period}
+                        chartData={conversionChartData}
+                        chartColor="#f44336"
                     />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
@@ -290,6 +300,52 @@ export default function DashboardPage() {
                                     fillOpacity={0.3}
                                 />
                             </AreaChart>
+                        </ResponsiveContainer>
+                    </Paper>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <Paper sx={{ p: 3, height: '100%' }}>
+                        <Typography variant="h6" sx={{ mb: 2 }}>
+                            Page views and downloads
+                        </Typography>
+                        <Typography variant="h4" component="div" fontWeight="medium">
+                            {metricData.pageViews.value}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5, mb: 3 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    color: 'error.main',
+                                    mr: 1,
+                                    typography: 'body2'
+                                }}
+                            >
+                                <TrendingUpIcon fontSize="small" sx={{ transform: 'rotate(180deg)' }} />
+                                {metricData.pageViews.change}
+                            </Box>
+                            <Typography variant="body2" color="text.secondary">
+                                {metricData.pageViews.period}
+                            </Typography>
+                        </Box>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart
+                                data={pageViewsChartData}
+                                margin={{
+                                    top: 10,
+                                    right: 30,
+                                    left: 0,
+                                    bottom: 0,
+                                }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="views" name="Views" stackId="a" fill="#8884d8" />
+                                <Bar dataKey="downloads" name="Downloads" stackId="a" fill="#3f51b5" />
+                            </BarChart>
                         </ResponsiveContainer>
                     </Paper>
                 </Grid>

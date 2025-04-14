@@ -23,6 +23,7 @@ import {
   Feedback as FeedbackIcon,
   MoreVert as MoreVertIcon,
 } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
 
 const drawerWidth = 240
 
@@ -42,18 +43,19 @@ interface SidebarProps {
 
 export default function Sidebar({ open, onClose, window }: SidebarProps) {
   const [selectedItem, setSelectedItem] = useState<string>('home')
-
+  const href = useNavigate()
   const handleListItemClick = (itemId: string) => {
     setSelectedItem(itemId)
+    href(`/dashboard/${itemId}`)
   }
 
   const container = window !== undefined ? () => window().document.body : undefined
 
   const mainListItems = [
-    { id: 'home', text: 'Trang chủ', icon: <HomeIcon /> },
-    { id: 'analytics', text: 'Quản lý phòng chiếu', icon: <AnalyticsIcon /> },
-    { id: 'clients', text: 'Quản lý phim', icon: <TasksIcon /> },
-    { id: 'tasks', text: 'Quản lý tài khoản', icon: <ClientsIcon /> },
+    { id: '', text: 'Trang chủ', icon: <HomeIcon /> },
+    { id: 'theater', text: 'Quản lý phòng chiếu', icon: <AnalyticsIcon /> },
+    { id: 'movies', text: 'Quản lý phim', icon: <TasksIcon /> },
+    { id: 'accounts', text: 'Quản lý tài khoản', icon: <ClientsIcon /> },
   ]
 
   const secondaryListItems = [
