@@ -21,6 +21,10 @@ import { CssBaseline, ThemeProvider } from '@mui/material'
 import theme from './theme/theme'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import Layout from './layouts/LayoutAdmin'
+import TheaterDashboard from './pages/dashboard/Theater'
+import Movies from './pages/dashboard/Movies'
+import Account from './pages/dashboard/Account'
+import RoomTheater from './pages/dashboard/RoomTheater'
 function App() {
 
   return (
@@ -50,6 +54,35 @@ function App() {
               element={
                 <Layout>
                   <DashboardPage />
+                </Layout>
+              } />
+            <Route
+              path="/dashboard/theater"
+              element={
+                <Layout>
+                  <TheaterDashboard />
+                </Layout>
+              } />
+            <Route
+              path="/dashboard/movies"
+              element={
+                <Layout>
+                  <Movies />
+                </Layout>
+              } />
+            <Route
+              path="/dashboard/accounts"
+              element={
+                <Layout>
+                  <Account />
+                </Layout>
+              } />
+
+            <Route
+              path="/dashboard/theater/:roomId"
+              element={
+                <Layout>
+                  <RoomTheater />
                 </Layout>
               } />
           </Routes>
