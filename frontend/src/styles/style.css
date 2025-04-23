@@ -103,10 +103,11 @@ body {
   }
 
   .nav-elements {
+    z-index: 100;
     position: absolute;
     right: 0;
     top: 60px;
-    background-color: #fef7e5;
+    background-color: #171716;
     width: 0px;
     height: calc(100vh - 60px);
     transition: all 0.3s ease-in;
@@ -523,7 +524,7 @@ body {
 
 .movie-detail-background {
   padding: 2rem;
-  background-color: #3a3a3a;
+  background-color: #d1c8c8;
   border-radius: 8px;
 }
 

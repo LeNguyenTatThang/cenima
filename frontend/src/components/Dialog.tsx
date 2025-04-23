@@ -16,7 +16,8 @@ import { TabList, TabPanel } from '@mui/lab'
 const CustomDialog = () => {
     const [open, setOpen] = React.useState(false)
     const [scroll, setScroll] = React.useState<DialogProps['scroll']>('paper')
-    const [selectedTime, setSelectedTime] = React.useState<string | null>(null)
+    const [selectedTime, setSelectedTime] = React.useState<{ theaterId: string, time: string } | null>(null)
+
     const handleClickOpen = (scrollType: DialogProps['scroll']) => () => {
         setOpen(true)
         setScroll(scrollType)
@@ -30,6 +31,9 @@ const CustomDialog = () => {
     }
     const [loading, setLoading] = React.useState(false)
     const descriptionElementRef = React.useRef<HTMLElement>(null)
+    const [value, setValue] = React.useState('0')
+    const today = new Date()
+
     React.useEffect(() => {
         const timeout = setTimeout(() => {
             setLoading(true)
@@ -45,14 +49,13 @@ const CustomDialog = () => {
         return () => clearTimeout(timeout)
     }, [open])
 
-    const today = new Date()
     const next5Days = Array.from({ length: 5 }, (_, index) => {
         const date = new Date(today)
         date.setDate(today.getDate() + index)
 
         return date.toLocaleDateString()
     })
-    const [value, setValue] = React.useState('0')
+
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
         setValue(newValue)
     }
@@ -61,28 +64,34 @@ const CustomDialog = () => {
         { format: '2D Phụ đề tiếng Anh' },
         {
             location: 'Hồ Chí Minh',
+            id: '1',
             data: [
                 {
+                    id: '1',
                     description: '2D',
                     cinema: 'AEON Bình Tân',
                     showtime: ['22:55', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
                 },
                 {
+                    id: '2',
                     description: '2D',
                     cinema: 'Vincom Thảo Điền',
                     showtime: ['16:00', '18:00', '20:00', '22:00'],
                 },
                 {
+                    id: '3',
                     description: '2D',
                     cinema: 'CGV Crescent Mall',
                     showtime: ['18:00', '20:00', '22:00'],
                 },
                 {
+                    id: '4',
                     description: '2D',
                     cinema: 'Lotte Cinema Gò Vấp',
                     showtime: ['18:30', '20:30', '22:30'],
                 },
                 {
+                    id: '5',
                     description: '2D',
                     cinema: 'BHD Star Phạm Hùng',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
@@ -91,28 +100,34 @@ const CustomDialog = () => {
         },
         {
             location: 'Hà Nội',
+            id: '2',
             data: [
                 {
+                    id: '1',
                     description: '2D',
                     cinema: 'CGV Vincom Bà Triệu',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
                 },
                 {
+                    id: '2',
                     description: 'Rạp GOLDCLASS',
                     cinema: 'Lotte Cinema Hà Đông',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
                 },
                 {
+                    id: '3',
                     description: 'Rạp STARIUM',
                     cinema: 'BHD Star Long Biên',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
                 },
                 {
+                    id: '4',
                     description: '2D',
                     cinema: 'CGV Royal City',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
                 },
                 {
+                    id: '5',
                     description: '2D',
                     cinema: 'Vincom Trần Duy Hưng',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
@@ -121,28 +136,34 @@ const CustomDialog = () => {
         },
         {
             location: 'Đà Nẵng',
+            id: '3',
             data: [
                 {
+                    id: '1',
                     description: '2D',
                     cinema: 'CGV Vincom Bà Triệu',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
                 },
                 {
+                    id: '2',
                     description: 'Rạp GOLDCLASS',
                     cinema: 'Lotte Cinema Hà Đông',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
                 },
                 {
+                    id: '3',
                     description: 'Rạp STARIUM',
                     cinema: 'BHD Star Long Biên',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
                 },
                 {
+                    id: '4',
                     description: '2D',
                     cinema: 'CGV Royal City',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
                 },
                 {
+                    id: '5',
                     description: '2D',
                     cinema: 'Vincom Trần Duy Hưng',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
@@ -151,28 +172,34 @@ const CustomDialog = () => {
         },
         {
             location: 'Hải Phòng',
+            id: '4',
             data: [
                 {
+                    id: '1',
                     description: '2D',
                     cinema: 'CGV Vincom Bà Triệu',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
                 },
                 {
+                    id: '2',
                     description: 'Rạp GOLDCLASS',
                     cinema: 'Lotte Cinema Hà Đông',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
                 },
                 {
+                    id: '3',
                     description: 'Rạp STARIUM',
                     cinema: 'BHD Star Long Biên',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
                 },
                 {
+                    id: '4',
                     description: '2D',
                     cinema: 'CGV Royal City',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
                 },
                 {
+                    id: '5',
                     description: '2D',
                     cinema: 'Vincom Trần Duy Hưng',
                     showtime: ['18:00', '20:00', '22:00', '21:15'],
@@ -193,6 +220,7 @@ const CustomDialog = () => {
 
         return () => clearInterval(timer)
     }, [])
+
     const isPastTime = (timeStr: string) => {
         const [hours, minutes] = timeStr.split(':').map(Number)
 
@@ -204,7 +232,7 @@ const CustomDialog = () => {
 
     return (
         <React.Fragment>
-            <Button onClick={handleClickOpen('paper')}>
+            <Button onClick={handleClickOpen('paper')} sx={{ width: "100px", margin: "0 auto", display: "flex", justifyContent: "center", alignItems: "center" }}>
                 <Tooltip title="Click để đặt vé">
                     <IconButton
                         onClick={() => setLoading(true)}
@@ -271,18 +299,22 @@ const CustomDialog = () => {
                                                 </Typography>
 
                                                 <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
-                                                    {theater.showtime.map((time, timeIdx) => (
-                                                        <Button
-                                                            key={timeIdx}
-                                                            size="small"
-                                                            variant={selectedTime === time ? "contained" : "outlined"}
-                                                            color={selectedTime === time ? "success" : "primary"}
-                                                            disabled={isPastTime(time)}
-                                                            onClick={() => setSelectedTime(time)}
-                                                        >
-                                                            {time}
-                                                        </Button>
-                                                    ))}
+                                                    {theater.showtime.map((time, timeIdx) => {
+                                                        const isSelected = selectedTime?.theaterId === theater.id && selectedTime?.time === time
+
+                                                        return (
+                                                            <Button
+                                                                key={timeIdx}
+                                                                size="small"
+                                                                variant={isSelected ? "contained" : "outlined"}
+                                                                color={isSelected ? "success" : "primary"}
+                                                                disabled={isPastTime(time)}
+                                                                onClick={() => setSelectedTime({ theaterId: theater.id, time })}
+                                                            >
+                                                                {time}
+                                                            </Button>
+                                                        )
+                                                    })}
                                                 </Box>
                                             </Box>
                                         ))}
