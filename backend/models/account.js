@@ -16,26 +16,40 @@ module.exports = (sequelize, DataTypes) => {
   Account.init({
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
       unique: true,
+      allowNull: false
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     points: {
       type: DataTypes.INTEGER,
-      defaultValue: 0,
-      allowNull: false,
+      defaultValue: 0
     },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'user'
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'active'
+    },
+    profile_picture: {
+      type: DataTypes.STRING,
+      allowNull: true
+    }
   }, {
     sequelize,
     modelName: 'Account',
-    timestamps: true,
+    tableName: 'Accounts',
+    timestamps: true
   });
   return Account;
 };
