@@ -23,8 +23,9 @@ import DashboardPage from './pages/dashboard/DashboardPage'
 import Layout from './layouts/LayoutAdmin'
 import TheaterDashboard from './pages/dashboard/Theater'
 import Movies from './pages/dashboard/Movies'
-import Account from './pages/dashboard/Account'
+import Account from './pages/dashboard/Account/Account'
 import RoomTheater from './pages/dashboard/RoomTheater'
+import CreateAccount from './pages/dashboard/Account/Create'
 function App() {
 
   return (
@@ -77,7 +78,13 @@ function App() {
                   <Account />
                 </Layout>
               } />
-
+            <Route
+              path="/dashboard/account/create"
+              element={
+                <Layout>
+                  <CreateAccount />
+                </Layout>
+              } />
             <Route
               path="/dashboard/theater/:roomId"
               element={
