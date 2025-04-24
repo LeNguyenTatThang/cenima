@@ -1,9 +1,29 @@
 const express = require('express')
-const { updateUser, deleteUser } = require('../controllers/user.controller')
-const { createAccount, getAccounts } = require('../controllers/accounts.controller')
-
+const { createAccount, getAccounts, updateAccount, deleteAccount } = require('../controllers/accounts.controller')
+const multer = require('multer')
+const path = require('path')
+const fs = require('fs')
 const router = express.Router()
 
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = "uploads/profiles"
+        console.log(`Destination directory: ${uploadDir}`)
+        if (!fs.existsSync(uploadDir)) {
+            console.log(`Directory does not exist, creating: ${uploadDir}`)
+            fs.mkdirSync(uploadDir, { recursive: true })
+        }
+        cb(null, uploadDir)
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname)
+        const filename = `profile-${Date.now()}${ext}`
+        console.log(`Generated filename: ${filename}`)
+        cb(null, filename)
+    }
+})
+
+const upload = multer({ storage })
 /**
  * @swagger
  * /api/getAccounts:
@@ -152,7 +172,7 @@ router.post('/api/createAccount', createAccount)
  *         description: Internal server error
  */
 
-router.put('/api/users/:id', updateUser)
+router.put('/api/updateAccount/:id', upload.single("profile_picture"), updateAccount)
 
-router.delete('/api/users/:id', deleteUser)
+router.delete('/api/deleteAccount/:id', deleteAccount)
 module.exports = router

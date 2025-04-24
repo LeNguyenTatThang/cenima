@@ -44,8 +44,6 @@ const CreateAccount = () => {
     }
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        console.log("Account Created:", formData)
-
         try {
             const response = await fetch(
                 "http://localhost:5000/api/createAccount",
