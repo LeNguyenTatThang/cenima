@@ -30,17 +30,29 @@ async function createAccount(req, res) {
 async function getAccounts(req, res) {
     try {
         const accounts = await Account.findAll()
-        res.status(200).json(accounts)
+        const accountsWithImage = accounts.map(account => {
+            return {
+                ...account.toJSON(),
+                profile_picture: account.profile_picture
+                    ? `http://localhost:5000/uploads/profiles/${account.profile_picture}`
+                    : null
+            };
+        });
+
+        res.status(200).json(accountsWithImage);
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: "error get accounts" })
+        console.log(err);
+        res.status(500).json({ message: "error get accounts" });
     }
 }
 
 async function updateAccount(req, res) {
     try {
         const { id } = req.params
-        const { name, email, password } = req.body
+        const { name, email, password, role, status } = req.body
+        const profile_picture = req.file ? req.file.filename : null
+        console.log("Body:", req.body)
+        console.log("File:", req.file)
         const account = await Account.findByPk(id)
         if (!name && !email && !password) {
             return res.status(400).json({ message: "Vui lòng nhập đày đủ thông tin" })
@@ -48,9 +60,17 @@ async function updateAccount(req, res) {
         if (!account) {
             return res.status(404).json({ message: "Account not found" })
         }
+
         account.name = name
         account.email = email
-        account.password = password
+        account.role = role
+        account.status = status
+        if (profile_picture) {
+            account.profile_picture = profile_picture
+        }
+        if (password) {
+            account.password = await bcrypt.hash(password, 10)
+        }
         await account.save()
         res.status(200).json({ message: "Account updated successfully" })
     } catch (err) {
@@ -59,8 +79,23 @@ async function updateAccount(req, res) {
     }
 }
 
+async function deleteAccount(req, res) {
+    try {
+        const { id } = req.params
+        const existingAccount = await Account.findByPk(id)
+        if (!existingAccount) {
+            return res.status(404).json({ message: "Account not found" })
+        }
+        await existingAccount.destroy()
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'error delete user' })
+    }
+}
+
 module.exports = {
     createAccount,
     getAccounts,
-    updateAccount
+    updateAccount,
+    deleteAccount
 }
