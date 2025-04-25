@@ -26,6 +26,8 @@ import Movies from './pages/dashboard/Movies'
 import Account from './pages/dashboard/Account/Account'
 import RoomTheater from './pages/dashboard/RoomTheater'
 import CreateAccount from './pages/dashboard/Account/Create'
+import Banner from './pages/dashboard/Banner/Banner'
+import CreateBanner from './pages/dashboard/Banner/Create'
 function App() {
 
   return (
@@ -92,6 +94,22 @@ function App() {
                   <RoomTheater />
                 </Layout>
               } />
+            <Route
+              path='/dashboard/banner'
+              element={
+                <Layout>
+                  <Banner />
+                </Layout>
+              }
+            />
+            <Route
+              path='/dashboard/banner/create'
+              element={
+                <Layout>
+                  <CreateBanner />
+                </Layout>
+              }
+            />
           </Routes>
         </div>
       </BrowserRouter>

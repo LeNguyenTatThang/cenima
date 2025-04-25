@@ -56,6 +56,7 @@ export default function Sidebar({ open, onClose, window }: SidebarProps) {
     { id: 'theater', text: 'Quản lý phòng chiếu', icon: <AnalyticsIcon /> },
     { id: 'movies', text: 'Quản lý phim', icon: <TasksIcon /> },
     { id: 'accounts', text: 'Quản lý tài khoản', icon: <ClientsIcon /> },
+    { id: 'banner', text: 'Quản lý banner', icon: <ClientsIcon /> },
   ]
 
   const secondaryListItems = [

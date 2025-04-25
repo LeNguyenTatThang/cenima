@@ -9,3 +9,13 @@ export interface AccountType {
     createdAt: string
     updatedAt?: string
 }
+
+export interface BannerType {
+    id: number
+    title: string
+    image: string
+    link?: string
+    status: string
+    createdAt: string
+    updatedAt?: string
+}

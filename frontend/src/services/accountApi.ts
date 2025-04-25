@@ -43,3 +43,4 @@ export const deleteAccount = async (id: number) => {
 
     return true
 }
+
