@@ -2,7 +2,7 @@ const json = require('body-parser')
 const { Account } = require('../models')
 const bcrypt = require("bcryptjs")
 const { where } = require('sequelize')
-
+const fs = require("fs")
 async function createAccount(req, res) {
     try {
         const { name, email, password } = req.body
@@ -51,27 +51,41 @@ async function updateAccount(req, res) {
         const { id } = req.params
         const { name, email, password, role, status } = req.body
         const profile_picture = req.file ? req.file.filename : null
-        console.log("Body:", req.body)
-        console.log("File:", req.file)
         const account = await Account.findByPk(id)
         if (!name && !email && !password) {
             return res.status(400).json({ message: "Vui lòng nhập đày đủ thông tin" })
         }
         if (!account) {
-            return res.status(404).json({ message: "Account not found" })
+            return res.status(404).json({ message: "Tài khoản không tồn tại" })
         }
 
         account.name = name
         account.email = email
         account.role = role
         account.status = status
-        if (profile_picture) {
-            account.profile_picture = profile_picture
-        }
+
         if (password) {
             account.password = await bcrypt.hash(password, 10)
         }
+
+        if (profile_picture) {
+            const oldImage = account.profile_picture
+            account.profile_picture = profile_picture
+            if (oldImage) {
+                try {
+                    const oldImagePath = `./uploads/profiles/${oldImage}`
+                    if (fs.existsSync(oldImagePath)) {
+                        await fs.promises.unlink(oldImagePath)
+                        console.log(`Đã xóa ảnh cũ: ${oldImagePath}`)
+                    }
+                } catch (err) {
+                    console.log(err)
+                }
+            }
+        }
+
         await account.save()
+
         res.status(200).json({ message: "Account updated successfully" })
     } catch (err) {
         console.log(err)
