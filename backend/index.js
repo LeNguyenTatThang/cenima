@@ -9,6 +9,7 @@ const morgan = require('morgan')
 const rateLimit = require('express-rate-limit')
 require('dotenv').config()
 const authRoutes = require('./routes/auth')
+const apiBanner = require('./routes/api.banner')
 const session = require("express-session")
 const passport = require("passport")
 const app = express()
@@ -22,7 +23,7 @@ app.use(session({
     saveUninitialized: false,
     cookie: { secure: false }
 }))
-app.use('/auth', authRoutes)
+
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }))
 app.use(compression())
 app.use(morgan('dev'))
@@ -31,6 +32,8 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"]
 }))
+app.use('/api', apiBanner)
+app.use('/auth', authRoutes)
 app.use(bodyParser.json())
 app.use(express.json())
 app.use(passport.initialize())
