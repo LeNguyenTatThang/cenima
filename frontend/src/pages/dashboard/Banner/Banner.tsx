@@ -33,8 +33,24 @@ const Banner = () => {
             setSelectedBanner(banner)
         }
     }
-    const handleDelete = (id: number) => {
-        console.log(id)
+    const handleDelete = async (id: number) => {
+        const banner = banners.find(banner => banner.id === id)
+        if (banner) {
+            const confirmDelete = window.confirm('Bạn có muốn xóa banner này không?')
+            if (confirmDelete) {
+                try {
+                    const res = await fetch(`http://localhost:5000/api/deleteBanner/${id}`, {
+                        method: 'DELETE'
+                    })
+                    if (res.ok) {
+                        fetchBanners()
+                    }
+                } catch (err) {
+                    console.log(err)
+                }
+
+            }
+        }
     }
 
 
@@ -79,7 +95,7 @@ const Banner = () => {
                                         <img
                                             src={banner?.image}
                                             alt={banner.title}
-                                            style={{ width: 250, height: 250, borderRadius: "5%" }}
+                                            style={{ width: 120, height: 70, borderRadius: "5%" }}
                                         />
                                     </TableCell>
                                     <TableCell>{banner.title}</TableCell>

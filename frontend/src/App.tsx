@@ -28,6 +28,8 @@ import RoomTheater from './pages/dashboard/RoomTheater'
 import CreateAccount from './pages/dashboard/Account/Create'
 import Banner from './pages/dashboard/Banner/Banner'
 import CreateBanner from './pages/dashboard/Banner/Create'
+import TheaterAdmin from './pages/dashboard/Theater/Theater'
+import CreateTheater from './pages/dashboard/Theater/Create'
 function App() {
 
   return (
@@ -110,6 +112,20 @@ function App() {
                 </Layout>
               }
             />
+            <Route
+              path='/dashboard/Theater1'
+              element={
+                <Layout>
+                  <TheaterAdmin />
+                </Layout>
+              } />
+            <Route
+              path='/dashboard/Theater/create'
+              element={
+                <Layout>
+                  <CreateTheater />
+                </Layout>
+              } />
           </Routes>
         </div>
       </BrowserRouter>
