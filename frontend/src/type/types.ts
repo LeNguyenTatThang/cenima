@@ -19,3 +19,13 @@ export interface BannerType {
     createdAt: string
     updatedAt?: string
 }
+
+export interface TheaterType {
+    id: number
+    name: string
+    city: string
+    address: string
+    type: string
+    createdAt: string
+    updatedAt?: string
+}

@@ -77,4 +77,17 @@ async function updateBanner(req, res) {
         res.status(500).json({ message: 'error update banner' })
     }
 }
-module.exports = { createBanner, getBanners, updateBanner }
+
+async function deleteBanner(req, res) {
+    try {
+        const { id } = req.params
+        const existingBanner = await Banner.findByPk(id)
+        if (!existingBanner) return res.status(404).json({ message: 'Banner not found' })
+        await existingBanner.destroy()
+        res.status(200).json({ message: 'Xoá banner thành công' })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'error delete banner' })
+    }
+}
+module.exports = { createBanner, getBanners, updateBanner, deleteBanner }
