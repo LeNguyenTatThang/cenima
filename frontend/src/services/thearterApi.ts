@@ -13,3 +13,25 @@ export const getCities = async (query = "") => {
 
     return response.json()
 }
+
+export const updateTheater = async (id: number, data: Partial<TheaterType>) => {
+    const response = await fetch(`${API_URL}/updateTheater/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+    if (!response.ok) throw new Error("Failed to update theater")
+
+    return response.json()
+}
+
+export const deleteTheater = async (id: number) => {
+    const response = await fetch(`${API_URL}/deleteTheater/${id}`, {
+        method: "DELETE",
+    })
+    if (!response.ok) throw new Error("Failed to delete theater")
+
+    return true
+}
