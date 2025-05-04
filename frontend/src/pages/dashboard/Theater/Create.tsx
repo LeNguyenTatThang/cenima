@@ -57,27 +57,27 @@ const CreateTheater = () => {
     return (
         <form onSubmit={handleSubmit}>
             <Stack spacing={2}>
-                <Typography variant="h6">Create New Theater</Typography>
+                <Typography variant="h6">Tạo rạp mới</Typography>
                 <TextField
-                    label="Name Cenima"
+                    label="Tên rạp"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     fullWidth
                 />
                 <Autocomplete
                     options={cities}
-                    getOptionLabel={(option) => option.name} // Lấy tên tỉnh thành
+                    getOptionLabel={(option) => option.name}
                     value={city ? cities.find((c) => c.name === city) || null : null}
                     onChange={(event, newValue) => {
                         setCity(newValue ? newValue.name : '')
                     }}
                     renderInput={(params) => (
-                        <TextField {...params} label="City" fullWidth />
+                        <TextField {...params} label="Tỉnh/Thành Phố" variant="outlined" fullWidth />
                     )}
                 />
 
                 <TextField
-                    label="Address"
+                    label="Địa chỉ"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     fullWidth
@@ -85,7 +85,7 @@ const CreateTheater = () => {
 
                 </TextField>
                 <TextField
-                    label="Type"
+                    label="Kiểu rạp"
                     value={type}
                     onChange={(e) => setType(e.target.value)}
                     fullWidth

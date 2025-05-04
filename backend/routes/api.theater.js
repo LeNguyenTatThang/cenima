@@ -4,7 +4,7 @@ const router = express.Router()
 
 router.get('/getTheaters', getTheaters)
 router.post('/createTheater', createTheater)
-router.put('/updateBanner/:id', updateTheater)
-router.delete('/deleteBanner/:id', deleteTheater)
+router.put('/updateTheater/:id', updateTheater)
+router.delete('/deleteTheater/:id', deleteTheater)
 
 module.exports = router

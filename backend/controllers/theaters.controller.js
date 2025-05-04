@@ -3,7 +3,12 @@ const { Theater } = require('../models')
 
 async function getTheaters(req, res) {
     try {
-        const theater = await Theater.findAll()
+        const theater = await Theater.findAll({
+            order: [
+                ['name', 'ASC'],
+                ['updatedAt', 'DESC']
+            ]
+        })
         res.status(200).json(theater)
 
     } catch (err) {

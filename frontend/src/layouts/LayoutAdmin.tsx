@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Box, CssBaseline, Toolbar, useMediaQuery, useTheme } from '@mui/material'
 import Sidebar from './SidebarAdmin'
 import Header from './HeaderAdmin'
+import { SnackbarProvider } from '../components/dashboard/SnackbarContext'
 
 interface LayoutProps {
     children: React.ReactNode
@@ -17,22 +18,24 @@ export default function Layout({ children }: LayoutProps) {
     }
 
     return (
-        <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-            <CssBaseline />
-            <Header open={!isMobile || mobileOpen} toggleDrawer={handleDrawerToggle} />
-            <Sidebar open={mobileOpen} onClose={handleDrawerToggle} />
-            <Box
-                component="main"
-                sx={{
-                    flexGrow: 1,
-                    p: 3,
-                    width: { sm: `calc(100% - ${240}px)` },
-                    bgcolor: 'background.default',
-                }}
-            >
-                <Toolbar />
-                {children}
+        <SnackbarProvider>
+            <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+                <CssBaseline />
+                <Header open={!isMobile || mobileOpen} toggleDrawer={handleDrawerToggle} />
+                <Sidebar open={mobileOpen} onClose={handleDrawerToggle} />
+                <Box
+                    component="main"
+                    sx={{
+                        flexGrow: 1,
+                        p: 3,
+                        width: { sm: `calc(100% - ${240}px)` },
+                        bgcolor: 'background.default',
+                    }}
+                >
+                    <Toolbar />
+                    {children}
+                </Box>
             </Box>
-        </Box>
+        </SnackbarProvider>
     )
 }
