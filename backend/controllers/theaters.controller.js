@@ -16,6 +16,17 @@ async function getTheaters(req, res) {
         res.status(500).json({ message: 'error get theaters' })
     }
 }
+
+async function getTheater(req, res) {
+    try {
+        const { id } = req.params
+        const theater = await Theater.findByPk(id)
+        res.status(200).json(theater)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Khong tim thay ra rap' })
+    }
+}
 async function createTheater(req, res) {
     try {
         const { name, city, address, type } = req.body
@@ -58,4 +69,4 @@ async function deleteTheater(req, res) {
         res.status(500).json({ message: 'error delete theater' })
     }
 }
-module.exports = { getTheaters, createTheater, updateTheater, deleteTheater }
+module.exports = { getTheaters, getTheater, createTheater, updateTheater, deleteTheater }

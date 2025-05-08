@@ -7,6 +7,13 @@ export const getAllTheaters = async (): Promise<TheaterType[]> => {
 
     return response.json()
 }
+
+export const getTheater = async (id: number) => {
+    const response = await fetch(`${API_URL}/getTheater/${id}`)
+    if (!response.ok) throw new Error("Failed to fetch theater")
+
+    return response.json()
+}
 export const getCities = async (query = "") => {
     const response = await fetch(`https://open.oapi.vn/location/provinces?page=0&size=30&query=${query}`)
     if (!response.ok) throw new Error("Failed to fetch cities")

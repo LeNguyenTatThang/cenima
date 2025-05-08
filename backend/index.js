@@ -11,6 +11,7 @@ require('dotenv').config()
 const authRoutes = require('./routes/auth')
 const apiBanner = require('./routes/api.banner')
 const apiTheater = require('./routes/api.theater')
+const apiAuditorium = require('./routes/api.auditorium')
 const session = require("express-session")
 const passport = require("passport")
 const app = express()
@@ -62,6 +63,7 @@ app.use((req, res, next) => {
 app.use('/api', apiTheater)
 app.use('/api', apiBanner)
 app.use('/auth', authRoutes)
+app.use('/api', apiAuditorium)
 app.use(router)
 
 app.listen(port, () => {

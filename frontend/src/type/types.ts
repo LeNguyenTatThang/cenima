@@ -29,3 +29,29 @@ export interface TheaterType {
     createdAt: string
     updatedAt?: string
 }
+
+export interface AuditoriumType {
+    id: number
+    theater_id: number
+    name: string
+    capacity: number
+    createdAt: string
+    updatedAt?: string
+}
+
+export type CreateAuditorium = {
+    name: string
+    capacity: number
+    theater_id: number
+}
+
+export interface SeatType {
+    id: number
+    auditorium_id: number
+    row: string
+    number: string
+    type: string
+    status: string
+    createdAt: string
+    updatedAt?: string
+}
