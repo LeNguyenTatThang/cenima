@@ -8,8 +8,8 @@ export const getAuditoriums = async (): Promise<AuditoriumType[]> => {
     return response.json()
 }
 
-export const getAuditorium = async (id: number): Promise<AuditoriumType> => {
-    const response = await fetch(`${API_URL}/getAuditorium/${id}`)
+export const getAuditorium = async (theater_id: number): Promise<AuditoriumType> => {
+    const response = await fetch(`${API_URL}/getAuditorium/${theater_id}`)
     if (!response.ok) throw new Error("Failed to fetch auditorium")
 
     return response.json()

@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react"
 import {
-    Table,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableBody,
-    TableContainer,
-    Paper,
     Typography,
     Button,
     Dialog,
@@ -16,11 +9,12 @@ import {
     DialogActions,
     Slide,
     TextField,
-    CardActions,
-    Tooltip,
-    IconButton
+    Box,
+    Grid,
+    Card,
+    CardContent
 } from "@mui/material"
-import { createAuditorium, deleteAuditorium, getAuditoriums } from "../../../../services/auditoriumApi"
+import { createAuditorium, deleteAuditorium, getAuditorium } from "../../../../services/auditoriumApi"
 import { AuditoriumType } from "../../../../type/types"
 import { useParams } from "react-router-dom"
 import { getTheater } from "../../../../services/thearterApi"
@@ -39,6 +33,22 @@ const Transition = React.forwardRef(function Transition(
 ) {
     return <Slide direction="up" ref={ref} {...props} />
 })
+
+const groupByFloor = (auditoriums: AuditoriumType[]) => {
+    const map = new Map<string, AuditoriumType[]>()
+
+    auditoriums.forEach((room) => {
+        if (room && room.name) {
+            const floor = room.name.match(/\d+/)?.[0] || "Khác"
+            if (!map.has(floor)) {
+                map.set(floor, [])
+            }
+            map.get(floor)!.push(room)
+        }
+    })
+
+    return map
+}
 
 const Auditoriums = () => {
     const [auditoriums, setAuditoriums] = useState<AuditoriumType[]>([])
@@ -66,19 +76,25 @@ const Auditoriums = () => {
         } catch (err) {
             console.log(err)
         }
-        fetchAuditoriums()
+        fetchAuditoriums(Number(id))
         setName("")
         setCapacity(0)
         setOpen(false)
     }
-    const fetchAuditoriums = async () => {
+    const fetchAuditoriums = async (id: number) => {
         try {
-            const data = await getAuditoriums()
-            setAuditoriums(data)
+            const data = await getAuditorium(id)
+            console.log(data)
+            if (Array.isArray(data)) {
+                setAuditoriums(data ?? [])
+            } else {
+                console.error("Dữ liệu không phải là mảng:", data)
+            }
         } catch (err) {
             console.log(err)
         }
     }
+
 
     const getNameTheater = async (id: number) => {
         try {
@@ -99,17 +115,20 @@ const Auditoriums = () => {
     const handleDelete = async (id: number) => {
         try {
             await deleteAuditorium(id)
-            fetchAuditoriums()
+            fetchAuditoriums(Number(id))
             showMessage("Xoá phong chiếu phim thành công")
         } catch (err) {
             console.log(err)
         }
     }
 
+    const handleClickPage = (id: number) => {
+        console.log(id)
+    }
     useEffect(() => {
         getNameTheater(Number(id))
-        fetchAuditoriums()
-    }, [])
+        fetchAuditoriums(Number(id))
+    }, [id])
 
     return (
         <div>
@@ -138,46 +157,50 @@ const Auditoriums = () => {
                     <Button onClick={handleClose}><CloseIcon />Huy</Button>
                 </DialogActions>
             </Dialog>
-            <TableContainer component={Paper} style={{ marginTop: "20px" }}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell><strong>ID</strong></TableCell>
-                            <TableCell><strong>Tên phòng</strong></TableCell>
-                            <TableCell><strong>Sức chứa</strong></TableCell>
-                            <TableCell>...</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {auditoriums.map((auditorium) => (
-                            <TableRow key={auditorium.id}>
-                                <TableCell>{auditorium.id}</TableCell>
-                                <TableCell>{auditorium.name}</TableCell>
-                                <TableCell>{auditorium.capacity}</TableCell>
-                                <TableCell>
-                                    <CardActions>
-                                        <Tooltip title="Xem chi tiết">
-                                            <IconButton onClick={() => handleView(auditorium.id)}>
-                                                <Visibility />
-                                            </IconButton>
-                                        </Tooltip>
-                                        <Tooltip title="Chỉnh sửa">
-                                            <IconButton onClick={() => handleEdit(auditorium)}>
-                                                <Edit />
-                                            </IconButton>
-                                        </Tooltip>
-                                        <Tooltip title="Xoá">
-                                            <IconButton onClick={() => handleDelete(auditorium.id)}>
-                                                <Delete />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </CardActions>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+            <Box p={1}>
+                {[...groupByFloor(auditoriums).entries()].map(([floor, rooms]) => (
+                    <Box key={floor} mb={4}>
+                        <Typography variant="h6" gutterBottom>
+                            Tầng {floor}
+                        </Typography>
+                        <Grid container spacing={2}>
+                            {auditoriums.length === 0 ? (
+                                <Box sx={{ flex: 1 }}>
+                                    <Card>
+                                        <CardContent>
+                                            <Typography variant="body2" color="text.secondary">
+                                                Không có phòng nào
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+                                </Box>
+                            ) : (
+
+                                rooms.map((data) => (
+                                    <Box key={data.id} sx={{ flex: 1 }}>
+                                        <Card onClick={() => handleClickPage(data.id)}>
+                                            <CardContent>
+                                                <Typography variant="subtitle1" fontWeight="bold">
+                                                    {data.name}
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    Sức chứa: {data.capacity} chỗ
+                                                </Typography>
+                                                <Box mt={1}>
+                                                    <Button variant="contained" onClick={() => handleView(data.id)}><Visibility /></Button>
+                                                    <Button variant="contained" onClick={() => handleEdit(data)} style={{ marginLeft: "10px" }}><Edit /></Button>
+                                                    <Button variant="contained" onClick={() => handleDelete(data.id)} style={{ marginLeft: "10px" }}><Delete /></Button>
+                                                </Box>
+                                            </CardContent>
+                                        </Card>
+                                    </Box>
+                                ))
+                            )}
+                        </Grid>
+                    </Box>
+                ))}
+            </Box>
+
         </div>
     )
 }
