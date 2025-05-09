@@ -3,7 +3,7 @@ const { getAuditoriums, getAuditorium, updateAuditorium, createAuditorium, delet
 const router = express.Router()
 
 router.get('/getAuditoriums', getAuditoriums)
-router.get('/getAuditorium/:id', getAuditorium)
+router.get('/getAuditorium/:theater_id', getAuditorium)
 router.post('/createAuditorium', createAuditorium)
 router.put('/updateAuditorium/:id', updateAuditorium)
 router.delete('/deleteAuditorium/:id', deleteAuditorium)

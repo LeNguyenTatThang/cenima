@@ -7,8 +7,10 @@ async function getAuditoriums(req, res) {
 }
 
 async function getAuditorium(req, res) {
-    const { id } = req.params
-    const auditorium = await Auditorium.findByPk(id)
+    const { theater_id } = req.params
+    const auditorium = await Auditorium.findAll({
+        where: { theater_id: theater_id }
+    })
     res.json(auditorium)
 }
 
