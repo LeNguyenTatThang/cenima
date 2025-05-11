@@ -2,7 +2,9 @@ const json = require('express').json
 const { Auditorium } = require('../models')
 
 async function getAuditoriums(req, res) {
-    const auditoriums = await Auditorium.findAll()
+    const auditoriums = await Auditorium.findAll({
+        order: [['name', 'ASC']]
+    })
     res.json(auditoriums)
 }
 
@@ -22,13 +24,10 @@ async function createAuditorium(req, res) {
 
 async function updateAuditorium(req, res) {
     const { id } = req.params
-    const { name, capacity, theater_id } = req.body
+    const data = req.body
     const auditorium = await Auditorium.findByPk(id)
     if (!auditorium) return res.status(404).json({ message: 'auditorium not found' })
-    auditorium.name = name
-    auditorium.capacity = capacity
-    auditorium.theater_id = theater_id
-    await auditorium.save()
+    await auditorium.update(data)
     res.json(auditorium)
 }
 
