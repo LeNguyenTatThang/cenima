@@ -12,9 +12,12 @@ import {
     Box,
     Grid,
     Card,
-    CardContent
+    CardContent,
+    Stack,
+    useMediaQuery,
+    useTheme
 } from "@mui/material"
-import { createAuditorium, deleteAuditorium, getAuditorium } from "../../../../services/auditoriumApi"
+import { createAuditorium, deleteAuditorium, getAuditorium, updateAuditorium } from "../../../../services/auditoriumApi"
 import { AuditoriumType } from "../../../../type/types"
 import { useParams } from "react-router-dom"
 import { getTheater } from "../../../../services/thearterApi"
@@ -23,6 +26,8 @@ import SaveIcon from '@mui/icons-material/Save'
 import CloseIcon from '@mui/icons-material/Close'
 import { Delete, Edit, Visibility } from "@mui/icons-material"
 import { useSnackbar } from "../../../../components/dashboard/SnackbarContext"
+import { useNavigate } from "react-router-dom"
+import AudiroriumEdit from "../../../../components/dashboard/AuditoriumEditModal"
 
 const Transition = React.forwardRef(function Transition(
 
@@ -33,18 +38,30 @@ const Transition = React.forwardRef(function Transition(
 ) {
     return <Slide direction="up" ref={ref} {...props} />
 })
-
+type AuditoriumWithFloorLetter = AuditoriumType & { floorLetter: string }
 const groupByFloor = (auditoriums: AuditoriumType[]) => {
-    const map = new Map<string, AuditoriumType[]>()
+    const map = new Map<string, AuditoriumWithFloorLetter[]>()
 
     auditoriums.forEach((room) => {
         if (room && room.name) {
-            const floor = room.name.match(/\d+/)?.[0] || "Khác"
-            if (!map.has(floor)) {
-                map.set(floor, [])
+
+            const floorNumber = room.name.match(/\d+/)?.[0] || "Khác"
+            const floorLetter = room.name.match(/[A-Za-z]+/)?.[0] || ""
+
+            if (!map.has(floorNumber)) {
+                map.set(floorNumber, [])
             }
-            map.get(floor)!.push(room)
+            const roomWithLetter = { ...room, floorLetter }
+
+            map.get(floorNumber)!.push(roomWithLetter)
         }
+    })
+
+
+    map.forEach((rooms) => {
+        rooms.sort((a, b) => {
+            return a.floorLetter.localeCompare(b.floorLetter)
+        })
     })
 
     return map
@@ -56,8 +73,15 @@ const Auditoriums = () => {
     const [name, setName] = useState<string>("")
     const [capacity, setCapacity] = useState<number>(0)
     const { id } = useParams()
+    const theater_id = Number(id)
     const [open, setOpen] = React.useState(false)
+    const [openEdit, setOpenEdit] = React.useState(false)
+    const [selectedAuditorium, setSelectedAuditorium] = React.useState<AuditoriumType | null>(null)
     const { showMessage } = useSnackbar()
+    const navigate = useNavigate()
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+
     const handleClickOpen = () => {
         setOpen(true)
     }
@@ -81,6 +105,20 @@ const Auditoriums = () => {
         setCapacity(0)
         setOpen(false)
     }
+
+    const handleSaveChange = async (form: { name: string; capacity: number }) => {
+        if (!selectedAuditorium) return
+        try {
+            console.log(selectedAuditorium.id)
+            const res = await updateAuditorium(selectedAuditorium.id, form)
+            console.log(res)
+            setOpenEdit(false)
+            fetchAuditoriums(Number(id))
+            showMessage("Cập nhật phong chiếu phim thành công")
+        } catch (err) {
+            console.log(err)
+        }
+    }
     const fetchAuditoriums = async (id: number) => {
         try {
             const data = await getAuditorium(id)
@@ -95,7 +133,6 @@ const Auditoriums = () => {
         }
     }
 
-
     const getNameTheater = async (id: number) => {
         try {
             const data = await getTheater(id)
@@ -106,11 +143,12 @@ const Auditoriums = () => {
     }
 
     const handleView = (id: number) => {
-        console.log(id)
-
+        console.log(theater_id, id)
+        navigate(`/dashboard/theater/view/${theater_id}/room/${id}`)
     }
-    const handleEdit = (auditorium: AuditoriumType) => {
-        console.log(auditorium)
+    const handleEdit = (data: AuditoriumType) => {
+        setSelectedAuditorium(data)
+        setOpenEdit(true)
     }
     const handleDelete = async (id: number) => {
         try {
@@ -187,9 +225,22 @@ const Auditoriums = () => {
                                                     Sức chứa: {data.capacity} chỗ
                                                 </Typography>
                                                 <Box mt={1}>
-                                                    <Button variant="contained" onClick={() => handleView(data.id)}><Visibility /></Button>
-                                                    <Button variant="contained" onClick={() => handleEdit(data)} style={{ marginLeft: "10px" }}><Edit /></Button>
-                                                    <Button variant="contained" onClick={() => handleDelete(data.id)} style={{ marginLeft: "10px" }}><Delete /></Button>
+                                                    <Stack
+                                                        direction={isMobile ? "column" : "row"}
+                                                        spacing={1}
+                                                    >
+                                                        <Button variant="outlined" onClick={() => handleView(data.id)}><Visibility /></Button>
+                                                        <Button variant="outlined" onClick={() => handleEdit(data)}><Edit /></Button>
+                                                        <Button variant="outlined" onClick={() => handleDelete(data.id)}><Delete /></Button>
+                                                    </Stack>
+
+                                                    {/* Dialog Edit */}
+                                                    <AudiroriumEdit
+                                                        open={openEdit}
+                                                        onClose={() => setOpenEdit(false)}
+                                                        data={selectedAuditorium}
+                                                        onSave={handleSaveChange}
+                                                    />
                                                 </Box>
                                             </CardContent>
                                         </Card>

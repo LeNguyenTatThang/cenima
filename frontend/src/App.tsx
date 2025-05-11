@@ -21,16 +21,16 @@ import { CssBaseline, ThemeProvider } from '@mui/material'
 import theme from './theme/theme'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import Layout from './layouts/LayoutAdmin'
-import TheaterDashboard from './pages/dashboard/Theater'
 import Movies from './pages/dashboard/Movies'
 import Account from './pages/dashboard/Account/Account'
-import RoomTheater from './pages/dashboard/RoomTheater'
+
 import CreateAccount from './pages/dashboard/Account/Create'
 import Banner from './pages/dashboard/Banner/Banner'
 import CreateBanner from './pages/dashboard/Banner/Create'
 import TheaterAdmin from './pages/dashboard/Theater/Theater'
 import CreateTheater from './pages/dashboard/Theater/Create'
 import Auditoriums from './pages/dashboard/Theater/View/Auditoriums'
+import Room from './pages/dashboard/Theater/View/Room/Room'
 function App() {
 
   return (
@@ -56,16 +56,15 @@ function App() {
             <Route path="*" element={<NotFound />} />
             {/* Admin Routes */}
             <Route path="/dashboard" element={<Layout><DashboardPage /> </Layout>} />
-            <Route path="/dashboard/theater" element={<Layout><TheaterDashboard /></Layout>} />
             <Route path="/dashboard/movies" element={<Layout> <Movies /> </Layout>} />
             <Route path="/dashboard/accounts" element={<Layout><Account /></Layout>} />
             <Route path="/dashboard/account/create" element={<Layout><CreateAccount /></Layout>} />
-            <Route path="/dashboard/theater/:roomId" element={<Layout> <RoomTheater /></Layout>} />
             <Route path='/dashboard/banner' element={<Layout> <Banner />  </Layout>} />
             <Route path='/dashboard/banner/create' element={<Layout> <CreateBanner /> </Layout>} />
-            <Route path='/dashboard/Theater1' element={<Layout> <TheaterAdmin /></Layout>} />
+            <Route path='/dashboard/theater' element={<Layout> <TheaterAdmin /></Layout>} />
             <Route path='/dashboard/Theater/create' element={<Layout> <CreateTheater /></Layout>} />
             <Route path='/dashboard/theater/view/:id' element={<Layout> <Auditoriums /></Layout>} />
+            <Route path='/dashboard/theater/view/:theater_id/room/:id' element={<Layout> <Room /></Layout>} />
           </Routes>
         </div>
       </BrowserRouter>

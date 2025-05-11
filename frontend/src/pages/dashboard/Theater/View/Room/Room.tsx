@@ -38,8 +38,8 @@ const generateMatrixSeats = () => {
 
     return seats.reverse()
 }
+const Room = () => {
 
-const RoomTheater = () => {
     const { roomId } = useParams()
     const [seats, setSeats] = useState(generateMatrixSeats())
 
@@ -117,4 +117,4 @@ const RoomTheater = () => {
     )
 }
 
-export default RoomTheater
+export default Room
