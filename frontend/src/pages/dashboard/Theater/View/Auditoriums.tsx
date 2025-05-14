@@ -234,7 +234,6 @@ const Auditoriums = () => {
                                                         <Button variant="outlined" onClick={() => handleDelete(data.id)}><Delete /></Button>
                                                     </Stack>
 
-                                                    {/* Dialog Edit */}
                                                     <AudiroriumEdit
                                                         open={openEdit}
                                                         onClose={() => setOpenEdit(false)}
