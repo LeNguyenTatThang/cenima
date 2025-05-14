@@ -49,7 +49,7 @@ export interface SeatType {
     id: number
     auditorium_id: number
     row: string
-    number: string
+    number: number
     type: string
     status: string
     createdAt: string

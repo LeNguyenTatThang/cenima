@@ -18,9 +18,6 @@ import {
   BarChart as AnalyticsIcon,
   People as ClientsIcon,
   Assignment as TasksIcon,
-  Settings as SettingsIcon,
-  Info as AboutIcon,
-  Feedback as FeedbackIcon,
   MoreVert as MoreVertIcon,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
@@ -57,12 +54,11 @@ export default function Sidebar({ open, onClose, window }: SidebarProps) {
     { id: 'movies', text: 'Quản lý phim', icon: <TasksIcon /> },
     { id: 'accounts', text: 'Quản lý tài khoản', icon: <ClientsIcon /> },
     { id: 'banner', text: 'Quản lý banner', icon: <ClientsIcon /> },
-  ]
-
-  const secondaryListItems = [
-    { id: 'settings', text: 'Cài đặt', icon: <SettingsIcon /> },
-    { id: 'about', text: 'Giới thiệu', icon: <AboutIcon /> },
-    { id: 'feedback', text: 'Phản hồi', icon: <FeedbackIcon /> },
+    { id: 'food', text: 'Đồ ăn', icon: <ClientsIcon /> },
+    { id: 'drink', text: 'Nước uống', icon: <ClientsIcon /> },
+    { id: 'combo', text: 'Combo', icon: <ClientsIcon /> },
+    { id: 'ticket', text: 'Giá vé', icon: <ClientsIcon /> },
+    { id: 'buy-ticket', text: 'Đặt vé', icon: <ClientsIcon /> },
   ]
 
   const drawer = (
@@ -115,40 +111,6 @@ export default function Sidebar({ open, onClose, window }: SidebarProps) {
       </List>
 
       <Divider />
-
-      <List component="nav">
-        {secondaryListItems.map((item) => (
-          <ListItem key={item.id} disablePadding>
-            <ListItemButton
-              selected={selectedItem === item.id}
-              onClick={() => handleListItemClick(item.id)}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: 'rgba(32, 80, 130, 0.08)',
-                  borderRight: '3px solid #205082',
-                },
-                '&.Mui-selected:hover': {
-                  backgroundColor: 'rgba(32, 80, 130, 0.12)',
-                },
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  color: selectedItem === item.id ? 'primary.main' : 'text.secondary',
-                }}
-              >
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.text}
-                primaryTypographyProps={{
-                  color: selectedItem === item.id ? 'primary.main' : 'text.primary',
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
 
       <Box sx={{
         p: 2,
