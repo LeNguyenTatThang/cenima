@@ -1,240 +1,504 @@
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import {
-    Box, Typography, Grid, Button, Breadcrumbs, Link, CircularProgress, TextField
+    Box,
+    Typography,
+    Grid,
+    Button,
+    Breadcrumbs,
+    Link,
+    CircularProgress,
+    TextField,
+    DialogContent,
+    DialogContentText,
 } from "@mui/material"
-import { NavigateNext as NavigateNextIcon } from '@mui/icons-material'
-import { SeatType } from "../../../../../type/types"
+import { NavigateNext as NavigateNextIcon } from "@mui/icons-material"
+import CustomDialog from "../../../../../components/dashboard/CustomDialog"
 import {
-    Dialog, DialogTitle, DialogContent, DialogContentText,
-    DialogActions
-} from "@mui/material"
-
-
-
+    createSeats,
+    deleteSeatsByAuditorium,
+    fetchSeatsByAuditorium,
+} from "../../../../../services/roomApi"
+import ModeEditIcon from '@mui/icons-material/ModeEdit'
+type SeatType = {
+    id: number;
+    auditorium_id: number;
+    row: string;
+    number: number | string;
+    type: string;
+    status: string;
+};
+interface UpdateSeatPayload {
+    id: number;
+    auditorium_id: string | number | undefined;
+    type: string;
+    status: string;
+}
 const Room = () => {
     const { id } = useParams()
     const [seats, setSeats] = useState<SeatType[]>([])
     const [loading, setLoading] = useState(true)
-    const [nameAuditorium, setNameAuditorium] = useState<string>('')
-    const [rowsCount, setRowsCount] = useState<number>(5)
-    const [rowsInput, setRowsInput] = useState<string>("ABCDE")
+    const [nameAuditorium, setNameAuditorium] = useState("")
+    const [rowsCount, setRowsCount] = useState(5)
+    const [rowsInput, setRowsInput] = useState("ABCDE")
     const [columnsInput, setColumnsInput] = useState(10)
     const [openConfirm, setOpenConfirm] = useState(false)
+    const [openEditDialog, setOpenEditDialog] = useState(false)
 
+    const [editMode, setEditMode] = useState<"row" | "seat">("row")
+
+    const [selectedRow, setSelectedRow] = useState<string | null>(null)
+    const [selectedSeat, setSelectedSeat] = useState<SeatType | null>(null)
+    const [selectedType, setSelectedType] = useState("standard")
+    const [selectedStatus, setSelectedStatus] = useState("available")
+
+    const [pairSide, setPairSide] = useState<"left" | "right" | null>(null)
 
     useEffect(() => {
-        const letters = Array.from({ length: rowsCount }, (_, i) => String.fromCharCode(65 + i)).join("")
-        setRowsInput(letters)
+        setRowsInput(
+            Array.from({ length: rowsCount }, (_, i) =>
+                String.fromCharCode(65 + i)
+            ).join("")
+        )
     }, [rowsCount])
+
     useEffect(() => {
-        const fetchSeats = async () => {
-            try {
-                const res = await fetch(`http://localhost:5000/api/getseats/${id}`)
-                const data = await res.json()
-
-                if (data?.name_auditorium && data?.seats) {
-                    setNameAuditorium(data.name_auditorium)
-                    setSeats(data.seats)
-                }
-            } catch (err) {
-                console.error("Lỗi khi lấy ghế:", err)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        fetchSeats()
+        fetchData()
     }, [id])
 
-    const toggleSeatStatus = (index: number) => {
-        const updatedSeats = [...seats]
-        updatedSeats[index].status = updatedSeats[index].status === 'available' ? 'locked' : 'available'
-        setSeats(updatedSeats)
+    const fetchData = async () => {
+        try {
+            const data = await fetchSeatsByAuditorium(id!)
+            setNameAuditorium(data.name_auditorium)
+            setSeats(data.seats)
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const getSeatColor = (type: string, status: string) => {
-        if (status === 'unavailable') return "#999"
-        switch (type) {
-            case "single": return "green"
-            case "double": return "orange"
-            case "vip": return "red"
-            default: return "gray"
-        }
+        if (status === "unavailable") return "#999"
+
+        return type === "single"
+            ? "green"
+            : type === "double"
+                ? "orange"
+                : type === "vip"
+                    ? "red"
+                    : "gray"
     }
 
     const handleCreateSeats = async () => {
         try {
-            const body = {
-                auditorium_id: Number(id),
-                row: rowsInput,
-                number: columnsInput,
-                type: "single",
-                status: "available"
-            }
-
-            const res = await fetch("http://localhost:5000/api/createSeatForAuditorium", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body)
-            })
-
-            const result = await res.json()
-            if (res.ok) {
-                setSeats(result.seats)
-            } else {
-                console.error("Lỗi tạo ghế:", result.message)
-            }
+            const result = await createSeats(Number(id), rowsInput, columnsInput)
+            setSeats(result.seats)
         } catch (err) {
-            console.error("Lỗi gửi yêu cầu tạo ghế:", err)
+            console.error(err)
         }
     }
 
-    if (loading) return <Box textAlign="center" mt={4}><CircularProgress /></Box>
-
     const handleConfirmDelete = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/api/deleteSeat/${id}`, {
-                method: "DELETE"
-            })
-
-            if (res.ok) {
-                setSeats([])
-            }
+            await deleteSeatsByAuditorium(id!)
+            setSeats([])
         } catch (err) {
-            console.error("Lỗi khi xóa ghế:", err)
-            alert("Lỗi kết nối tới máy chủ.")
+            console.error(err)
         } finally {
             setOpenConfirm(false)
         }
     }
 
-    const handleChangeRowAttribute = (row: string) => {
-        const updatedSeats = seats.map(seat => {
-            if (seat.row === row) {
-                return {
-                    ...seat,
-                    type: seat.type === 'vip' ? 'single' : 'vip',
+    const handleOpenEditDialog = (row: string) => {
+        setEditMode("row")
+        setSelectedRow(row)
+        const seat = seats.find((s) => s.row === row)
+        if (seat) {
+            setSelectedType(seat.type)
+            setSelectedStatus(seat.status)
+        }
+        setOpenEditDialog(true)
+    }
+
+    const handleOpenEditSeatDialog = (seat: SeatType) => {
+        setEditMode("seat")
+        setSelectedSeat(seat)
+        setSelectedType(seat.type)
+        setSelectedStatus(seat.status)
+        setPairSide(null)
+        setOpenEditDialog(true)
+    }
+    const hasLeftSeat = () => {
+        if (!selectedSeat) return false
+
+        return seats.some(
+            (seat) =>
+                seat.row === selectedSeat.row &&
+                Number(seat.number) === Number(selectedSeat.number) - 1 &&
+                seat.type === "single"
+        )
+    }
+
+    const hasRightSeat = () => {
+        if (!selectedSeat) return false
+
+        return seats.some(
+            (seat) =>
+                seat.row === selectedSeat.row &&
+                Number(seat.number) === Number(selectedSeat.number) + 1 &&
+                seat.type === "single"
+        )
+    }
+
+    const handleApplyRowEdit = async () => {
+        if (!selectedRow) return
+        setLoading(true)
+        try {
+            const res = await fetch("http://localhost:5000/api/updateSeat", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    auditorium_id: id,
+                    row: selectedRow,
+                    type: selectedType,
+                    status: selectedStatus,
+                }),
+            })
+            const data = await res.json()
+            if (res.ok) {
+                fetchData()
+                setOpenEditDialog(false)
+                setLoading(false)
+            } else {
+                alert(data.message || "Cập nhật thất bại")
+            }
+        } catch (error) {
+            console.error("Lỗi khi cập nhật hàng ghế:", error)
+            alert("Đã xảy ra lỗi khi gửi yêu cầu cập nhật")
+        }
+    }
+
+    const handleApplySeatEdit = async () => {
+        if (!selectedSeat) return
+        setLoading(true)
+
+        try {
+            const updateMainSeatBody: UpdateSeatPayload = {
+                id: selectedSeat.id,
+                auditorium_id: id,
+                type: selectedType,
+                status: selectedStatus,
+            }
+            if (selectedType === "double" && pairSide) {
+                const neighborNumber =
+                    pairSide === "left"
+                        ? Number(selectedSeat.number) - 1
+                        : Number(selectedSeat.number) + 1
+                const neighborSeat = seats.find(
+                    (s) =>
+                        s.row === selectedSeat.row &&
+                        Number(s.number) === neighborNumber
+                )
+
+                if (!neighborSeat) {
+                    alert("Không tìm thấy ghế bên cạnh để ghép đôi")
+                    setLoading(false)
+
+                    return
+                }
+
+                const resMain = await fetch("http://localhost:5000/api/updateSeat", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updateMainSeatBody),
+                })
+                if (!resMain.ok) {
+                    const errData = await resMain.json()
+                    alert(errData.message || "Cập nhật ghế chính thất bại")
+                    setLoading(false)
+
+                    return
+                }
+                const resNeighbor = await fetch(
+                    "http://localhost:5000/api/updateSeat",
+                    {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            id: neighborSeat.id,
+                            auditorium_id: id,
+                            type: "double",
+                            status: selectedStatus,
+                        }),
+                    }
+                )
+                if (!resNeighbor.ok) {
+                    const errData = await resNeighbor.json()
+                    alert(errData.message || "Cập nhật ghế ghép đôi thất bại")
+                    setLoading(false)
+
+                    return
+                }
+            } else {
+                const res = await fetch("http://localhost:5000/api/updateSeat", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updateMainSeatBody),
+                })
+                if (!res.ok) {
+                    const errData = await res.json()
+                    alert(errData.message || "Cập nhật ghế thất bại")
+                    setLoading(false)
+
+                    return
                 }
             }
 
-            return seat
-        })
-        setSeats(updatedSeats)
+            await fetchData()
+            setOpenEditDialog(false)
+            setLoading(false)
+        } catch (error) {
+            console.error("Lỗi khi cập nhật ghế:", error)
+            alert("Đã xảy ra lỗi khi gửi yêu cầu cập nhật")
+            setLoading(false)
+        }
     }
 
+    if (loading)
+        return (
+            <Box textAlign="center" mt={4}>
+                <CircularProgress />
+            </Box>
+        )
 
     return (
         <Box>
-            <Box sx={{ mb: 1 }}>
+            <Box mb={1}>
                 <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-                    <Link underline="hover" color="inherit" href="/dashboard">Dashboard</Link>
-                    <Link underline="hover" color="inherit" href="/dashboard/theater">Quản lý phòng chiếu</Link>
-                    <Typography color="text.primary">Phòng chiếu: {nameAuditorium}</Typography>
+                    <Link underline="hover" color="inherit" href="/dashboard">
+                        Dashboard
+                    </Link>
+                    <Link underline="hover" color="inherit" href="/dashboard/theater">
+                        Quản lý phòng chiếu
+                    </Link>
+                    <Typography color="text.primary">{nameAuditorium}</Typography>
                 </Breadcrumbs>
-                <Typography variant="h4" sx={{ mt: 1 }}>
-                    Quản lý phòng chiếu phim: Phòng {nameAuditorium}
-                </Typography>
             </Box>
+            {!seats.length && (
+                <Box mb={2}>
+                    <Typography variant="h6" mb={1}>
+                        Tạo ghế mới cho phòng {nameAuditorium}
+                    </Typography>
+                    <TextField
+                        label="Số hàng (ví dụ: 5)"
+                        value={rowsCount}
+                        onChange={(e) => setRowsCount(Number(e.target.value))}
+                        type="number"
+                        size="small"
+                        sx={{ mr: 2 }}
+                    />
+                    <TextField
+                        label="Tên các hàng (ví dụ: ABCDE)"
+                        value={rowsInput}
+                        onChange={(e) => setRowsInput(e.target.value.toUpperCase())}
+                        size="small"
+                        sx={{ mr: 2, width: 120 }}
+                    />
+                    <TextField
+                        label="Số ghế mỗi hàng"
+                        value={columnsInput}
+                        onChange={(e) => setColumnsInput(Number(e.target.value))}
+                        type="number"
+                        size="small"
+                        sx={{ width: 120 }}
+                    />
+                    <Button variant="contained" onClick={handleCreateSeats} sx={{ ml: 2 }}>
+                        Tạo ghế
+                    </Button>
+                </Box>
+            )}
 
-            <Box p={1}>
-                {seats.length > 0 ? (
-                    <>
-                        {[...new Set(seats.map(seat => seat.row))]
-                            .sort()
-                            .map((rowLetter) => (
-                                <Grid container spacing={1} key={rowLetter} mb={1} justifyContent="center" alignItems="center">
-                                    {/* Nút chỉnh thuộc tính toàn hàng */}
-                                    <Button
-                                        size="small"
-                                        variant="outlined"
-                                        color="primary"
-                                        sx={{ minWidth: 40, height: 50, mr: 1 }}
-                                        onClick={() => handleChangeRowAttribute(rowLetter)}
-                                    >
-                                        {rowLetter}
-                                    </Button>
-
-                                    {seats
-                                        .filter(seat => seat.row === rowLetter)
-                                        .sort((a, b) => Number(a.number) - Number(b.number))
-                                        .map((seat) => (
-                                            <Button
-                                                key={seat.id}
-                                                variant="contained"
-                                                onClick={() => toggleSeatStatus(seats.findIndex(s => s.id === seat.id))}
-                                                sx={{
-                                                    width: 50,
-                                                    height: 50,
-                                                    bgcolor: getSeatColor(seat.type, seat.status),
-                                                    color: "white",
-                                                    fontWeight: "bold",
-                                                    "&:hover": { opacity: 0.8 }
-                                                }}
-                                            >
-                                                {seat.row}{seat.number}
-                                            </Button>
-                                        ))}
-                                </Grid>
-                            ))}
-
-                        <Box textAlign="right" mb={2}>
-                            <Button variant="outlined" color="error" onClick={() => setOpenConfirm(true)}>
-                                Xóa tất cả ghế
-                            </Button>
-                        </Box>
-                        <Box mt={4}>
-                            <Typography variant="subtitle2">
-                                🟩 Ghế đơn | 🟧 Ghế đôi | 🟥 Ghế VIP | ⬛ Ghế bị loại (lối đi)
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                Click vào ghế để bật/tắt trạng thái hoạt động
-                            </Typography>
-                        </Box>
-
-                        <Dialog
-                            open={openConfirm}
-                            onClose={() => setOpenConfirm(false)}
-                        >
-                            <DialogTitle>Xác nhận xóa</DialogTitle>
-                            <DialogContent>
-                                <DialogContentText>
-                                    Bạn có chắc chắn muốn <strong>xóa toàn bộ ghế</strong> trong phòng chiếu này không? Hành động này không thể hoàn tác.
-                                </DialogContentText>
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={() => setOpenConfirm(false)} color="primary">
-                                    Hủy
-                                </Button>
-                                <Button onClick={handleConfirmDelete} color="error" variant="contained">
-                                    Xóa
-                                </Button>
-                            </DialogActions>
-                        </Dialog>
-                    </>
-                ) : (
-                    <Box>
-                        <Typography variant="h6" mb={2}>Tạo sơ đồ ghế mới cho phòng {nameAuditorium}</Typography>
-                        <TextField
-                            label="Số hàng ghế"
-                            type="number"
-                            value={rowsCount}
-                            onChange={(e) => setRowsCount(Number(e.target.value))}
-                            sx={{ mr: 2 }}
-                        />
-                        <TextField
-                            label="Số cột ghế"
-                            type="number"
-                            value={columnsInput}
-                            onChange={(e) => setColumnsInput(Number(e.target.value))}
-                            sx={{ mr: 2 }}
-                        />
-                        <Button variant="contained" onClick={handleCreateSeats}>
-                            Tạo ghế
+            {!!seats.length && (
+                <Box>
+                    <Box display="flex" mb={2} gap={1}>
+                        <Button variant="outlined" color="error" onClick={() => setOpenConfirm(true)}>
+                            Xóa toàn bộ ghế
                         </Button>
                     </Box>
-                )}
-            </Box>
+                    {Array.from(new Set(seats.map((s) => s.row))).map((row) => (
+                        <Box key={row} mb={3}
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            gap={2}>
+
+                            <Button variant="outlined" onClick={() => handleOpenEditDialog(row)}>
+                                <ModeEditIcon />
+                            </Button>
+                            <Grid container spacing={1}>
+                                {seats
+                                    .filter((seat) => seat.row === row)
+                                    .sort((a, b) => Number(a.number) - Number(b.number))
+                                    .reduce<React.JSX.Element[]>((acc, seat, index, array) => {
+
+                                        if (
+                                            seat.type === "double" &&
+                                            index > 0 &&
+                                            Number(seat.number) === Number(array[index - 1].number) + 1 &&
+                                            array[index - 1].type === "double"
+                                        ) {
+                                            return acc
+                                        }
+                                        if (
+                                            seat.type === "double" &&
+                                            index < array.length - 1 &&
+                                            Number(array[index + 1].number) === Number(seat.number) + 1 &&
+                                            array[index + 1].type === "double"
+                                        ) {
+                                            const nextSeat = array[index + 1]
+                                            acc.push(
+                                                <Box
+                                                    key={`${seat.id}-${nextSeat.id}`}
+                                                    onClick={() => handleOpenEditSeatDialog(seat)}
+                                                    sx={{
+                                                        width: 80,
+                                                        height: 40,
+                                                        bgcolor: getSeatColor(seat.type, seat.status),
+                                                        color: "white",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        borderRadius: 1,
+                                                        cursor: "pointer",
+                                                        userSelect: "none",
+                                                    }}
+                                                    title={`Ghế đôi ${seat.row}${seat.number} + ${nextSeat.row}${nextSeat.number} - ${seat.type} - ${seat.status}`}
+                                                >
+                                                    {`${seat.row}${seat.number}+${nextSeat.number}`}
+                                                </Box>
+                                            )
+
+                                            return acc
+                                        }
+
+                                        acc.push(
+                                            <Box
+                                                key={seat.id}
+                                                onClick={() => handleOpenEditSeatDialog(seat)}
+                                                sx={{
+                                                    width: 40,
+                                                    height: 40,
+                                                    bgcolor: getSeatColor(seat.type, seat.status),
+                                                    color: "white",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    borderRadius: 1,
+                                                    cursor: "pointer",
+                                                    userSelect: "none",
+                                                }}
+                                                title={`Ghế ${seat.row}${seat.number} - ${seat.type} - ${seat.status}`}
+                                            >
+                                                {`${seat.row}${seat.number}`}
+                                            </Box>
+                                        )
+
+                                        return acc
+                                    }, [])}
+
+                            </Grid>
+                        </Box>
+                    ))}
+                </Box>
+            )}
+
+            <CustomDialog
+                open={openConfirm}
+                onClose={() => setOpenConfirm(false)}
+                title="Xác nhận xóa toàn bộ ghế"
+                maxWidth="xs"
+                onSubmit={handleConfirmDelete}
+            >
+                <DialogContent>
+                    <DialogContentText>
+                        Bạn có chắc muốn xóa toàn bộ ghế trong phòng chiếu {nameAuditorium} không?
+                    </DialogContentText>
+                </DialogContent>
+            </CustomDialog>
+
+            <CustomDialog
+                open={openEditDialog}
+                onClose={() => setOpenEditDialog(false)}
+                title={editMode === "row" ? `Chỉnh sửa hàng ${selectedRow}` : `Chỉnh sửa ghế ${selectedSeat?.row}${selectedSeat?.number}`}
+                maxWidth="xs"
+                onSubmit={editMode === "row" ? handleApplyRowEdit : handleApplySeatEdit}
+            >
+                <DialogContent>
+                    <Box mb={2}>
+                        <TextField
+                            select
+                            label="Loại ghế"
+                            value={selectedType}
+                            onChange={(e) => setSelectedType(e.target.value)}
+                            SelectProps={{ native: true }}
+                            fullWidth
+                            size="small"
+                        >
+                            <option value="standard">Standard (ghế đơn)</option>
+                            <option value="double">Double (ghế đôi)</option>
+                            <option value="vip">VIP</option>
+                            <option value="single">Single</option>
+                        </TextField>
+                    </Box>
+
+                    <Box mb={2}>
+                        <TextField
+                            select
+                            label="Trạng thái"
+                            value={selectedStatus}
+                            onChange={(e) => setSelectedStatus(e.target.value)}
+                            SelectProps={{ native: true }}
+                            fullWidth
+                            size="small"
+                        >
+                            <option value="available">Available (Có thể đặt)</option>
+                            <option value="unavailable">Unavailable (Không thể đặt)</option>
+                        </TextField>
+                    </Box>
+
+                    {editMode === "seat" && selectedType === "double" && (
+                        <Box mt={2}>
+                            <Typography variant="subtitle2" mb={1}>
+                                Chọn ghế ghép đôi:
+                            </Typography>
+                            <Box display="flex" gap={1}>
+                                {hasLeftSeat() && (
+                                    <Button
+                                        variant={pairSide === "left" ? "contained" : "outlined"}
+                                        onClick={() => setPairSide("left")}
+                                    >
+                                        Ghép bên trái
+                                    </Button>
+                                )}
+                                {hasRightSeat() && (
+                                    <Button
+                                        variant={pairSide === "right" ? "contained" : "outlined"}
+                                        onClick={() => setPairSide("right")}
+                                    >
+                                        Ghép bên phải
+                                    </Button>
+                                )}
+                                {!hasLeftSeat() && !hasRightSeat() && (
+                                    <Typography color="error" variant="body2">
+                                        Không có ghế bên cạnh để ghép đôi
+                                    </Typography>
+                                )}
+                            </Box>
+                        </Box>
+                    )}
+                </DialogContent>
+            </CustomDialog>
         </Box>
     )
 }
