@@ -5,7 +5,6 @@ const { where } = require('sequelize')
 async function getSeats(req, res) {
     try {
         const { id } = req.params
-        console.log(id)
         const seats = await Seat.findAll({
             where: { auditorium_id: id },
             include: {
@@ -59,6 +58,55 @@ async function createSeatForAuditorium(req, res) {
     }
 }
 
+async function updateSeat(req, res) {
+    const { id, auditorium_id, row, number, type, status } = req.body
+    console.log(id)
+    console.log(auditorium_id)
+    console.log(row)
+    console.log(number)
+    console.log(type)
+    console.log(status)
+    try {
+        if (!type && !status) {
+            return res.status(400).json({ message: "Vui lòng cung cấp ít nhất type hoặc status để cập nhật" })
+        }
+
+        if (id) {
+            // Update 1 ghế cụ thể
+            const seat = await Seat.findByPk(id);
+            if (!seat) return res.status(404).json({ message: "Ghế không tồn tại" })
+
+            if (auditorium_id) seat.auditorium_id = auditorium_id
+            if (row) seat.row = row
+            if (number) seat.number = number
+            if (type) seat.type = type
+            if (status) seat.status = status
+
+            await seat.save();
+            return res.status(200).json({ message: "Cập nhật ghế thành công" })
+        } else {
+            // Update nhiều ghế theo hàng
+            if (!auditorium_id || !row) {
+                return res.status(400).json({ message: "Vui lòng cung cấp auditorium_id và row để cập nhật hàng ghế" })
+            }
+
+            const [updatedCount] = await Seat.update(
+                { type, status },
+                {
+                    where: { auditorium_id, row }
+                }
+            )
+
+            if (updatedCount === 0) return res.status(404).json({ message: "Không tìm thấy ghế để cập nhật" })
+
+            return res.status(200).json({ message: `Cập nhật thành công ${updatedCount} ghế` })
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Lỗi khi cập nhật ghế" })
+    }
+}
+
 async function deleteSeat(req, res) {
     try {
         const { auditorium_id } = req.params
@@ -80,5 +128,6 @@ async function deleteSeat(req, res) {
 module.exports = {
     getSeats,
     createSeatForAuditorium,
+    updateSeat,
     deleteSeat
 }

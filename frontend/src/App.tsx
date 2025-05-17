@@ -31,6 +31,7 @@ import TheaterAdmin from './pages/dashboard/Theater/Theater'
 import CreateTheater from './pages/dashboard/Theater/Create'
 import Auditoriums from './pages/dashboard/Theater/View/Auditoriums'
 import Room from './pages/dashboard/Theater/View/Room/Room'
+import AppLoader from './components/common/AppLoader'
 function App() {
 
   return (
@@ -38,34 +39,36 @@ function App() {
       <CssBaseline />
       <BrowserRouter>
         <div className="App">
-          <Routes>
-            {/* Client Routes */}
-            <Route path="/" element={<><Nav /><Home /><Footer /></>} />
-            <Route path="/theater" element={<><Nav /><Theater /><Footer /></>} />
-            <Route path="/now-showing" element={<><Nav /><NowShowing /><Footer /></>} />
-            <Route path="/coming-soon" element={<><Nav /><ComingSoon /><Footer /></>} />
-            <Route path="/theater/site" element={<><Nav /><Site /><Footer /></>} />
-            <Route path="/member/membership" element={<><Nav /><MemberShip /><Footer /></>} />
-            <Route path="/event" element={<><Nav /><Event /><Footer /></>} />
-            <Route path="/cultureplex" element={<><Nav /><Cultureplex /><Footer /></>} />
-            <Route path="/theater/theaters-special" element={<><Nav /><TheaterSpecial /><Footer /></>} />
-            <Route path="/theater/3d" element={<><Nav /><Special3D /><Footer /></>} />
-            <Route path="/movie/:slug" element={<><Nav /><DetailMovie /><Footer /></>} />
+          <AppLoader>
+            <Routes>
+              {/* Client Routes */}
+              <Route path="/" element={<><Nav /><Home /><Footer /></>} />
+              <Route path="/theater" element={<><Nav /><Theater /><Footer /></>} />
+              <Route path="/now-showing" element={<><Nav /><NowShowing /><Footer /></>} />
+              <Route path="/coming-soon" element={<><Nav /><ComingSoon /><Footer /></>} />
+              <Route path="/theater/site" element={<><Nav /><Site /><Footer /></>} />
+              <Route path="/member/membership" element={<><Nav /><MemberShip /><Footer /></>} />
+              <Route path="/event" element={<><Nav /><Event /><Footer /></>} />
+              <Route path="/cultureplex" element={<><Nav /><Cultureplex /><Footer /></>} />
+              <Route path="/theater/theaters-special" element={<><Nav /><TheaterSpecial /><Footer /></>} />
+              <Route path="/theater/3d" element={<><Nav /><Special3D /><Footer /></>} />
+              <Route path="/movie/:slug" element={<><Nav /><DetailMovie /><Footer /></>} />
 
-            <Route path="/login" element={<><Login /></>} />
-            <Route path="*" element={<NotFound />} />
-            {/* Admin Routes */}
-            <Route path="/dashboard" element={<Layout><DashboardPage /> </Layout>} />
-            <Route path="/dashboard/movies" element={<Layout> <Movies /> </Layout>} />
-            <Route path="/dashboard/accounts" element={<Layout><Account /></Layout>} />
-            <Route path="/dashboard/account/create" element={<Layout><CreateAccount /></Layout>} />
-            <Route path='/dashboard/banner' element={<Layout> <Banner />  </Layout>} />
-            <Route path='/dashboard/banner/create' element={<Layout> <CreateBanner /> </Layout>} />
-            <Route path='/dashboard/theater' element={<Layout> <TheaterAdmin /></Layout>} />
-            <Route path='/dashboard/Theater/create' element={<Layout> <CreateTheater /></Layout>} />
-            <Route path='/dashboard/theater/view/:id' element={<Layout> <Auditoriums /></Layout>} />
-            <Route path='/dashboard/theater/view/:theater_id/room/:id' element={<Layout> <Room /></Layout>} />
-          </Routes>
+              <Route path="/login" element={<><Login /></>} />
+              <Route path="*" element={<NotFound />} />
+              {/* Admin Routes */}
+              <Route path="/dashboard" element={<Layout><DashboardPage /> </Layout>} />
+              <Route path="/dashboard/movies" element={<Layout> <Movies /> </Layout>} />
+              <Route path="/dashboard/accounts" element={<Layout><Account /></Layout>} />
+              <Route path="/dashboard/account/create" element={<Layout><CreateAccount /></Layout>} />
+              <Route path='/dashboard/banner' element={<Layout> <Banner />  </Layout>} />
+              <Route path='/dashboard/banner/create' element={<Layout> <CreateBanner /> </Layout>} />
+              <Route path='/dashboard/theater' element={<Layout> <TheaterAdmin /></Layout>} />
+              <Route path='/dashboard/Theater/create' element={<Layout> <CreateTheater /></Layout>} />
+              <Route path='/dashboard/theater/view/:id' element={<Layout> <Auditoriums /></Layout>} />
+              <Route path='/dashboard/theater/view/:theater_id/room/:id' element={<Layout> <Room /></Layout>} />
+            </Routes>
+          </AppLoader>
         </div>
       </BrowserRouter>
     </ThemeProvider>
