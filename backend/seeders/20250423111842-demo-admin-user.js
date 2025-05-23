@@ -1,21 +1,33 @@
 'use strict';
 const bcrypt = require('bcryptjs');
-/** @type {import('sequelize-cli').Migration} */
+
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const hashedPassword = await bcrypt.hash('Ken@2023', 10);
+    const email = 'lenguyentatthang.dev@gmail.com';
 
-    await queryInterface.bulkInsert('Accounts', [{
-      name: 'Lê Nguyễn Tất Thắng',
-      email: 'lenguyentatthang.dev@gmail.com',
-      password: hashedPassword,
-      points: 0,
-      role: 'admin',
-      status: 'active',
-      profile_picture: null,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }], {});
+    // Kiểm tra xem email đã tồn tại chưa
+    const [accounts] = await queryInterface.sequelize.query(
+      `SELECT id FROM "Accounts" WHERE email = '${email}' LIMIT 1`
+    );
+
+    // Nếu chưa tồn tại thì mới insert
+    if (accounts.length === 0) {
+      const hashedPassword = await bcrypt.hash('Ken@2023', 10);
+
+      await queryInterface.bulkInsert('Accounts', [{
+        name: 'Lê Nguyễn Tất Thắng',
+        email: email,
+        password: hashedPassword,
+        points: 0,
+        role: 'admin',
+        status: 'active',
+        profile_picture: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }], {});
+    } else {
+      console.log(`[Seed] Admin account "${email}" already exists. Skipping insert.`);
+    }
   },
 
   async down(queryInterface, Sequelize) {
