@@ -55,3 +55,26 @@ export interface SeatType {
     createdAt: string
     updatedAt?: string
 }
+
+export interface FoodSizesType {
+    size: string
+    price: number
+    status: boolean
+}
+
+export interface FoodType {
+    id: number
+    name: string
+    image: string
+    createdAt: string
+    updatedAt?: string
+    sizes: FoodSizesType[]
+}
+
+export interface MappedFood {
+    id: number
+    name: string
+    image: string
+    price: number
+    sizes: FoodSizesType[]
+}
