@@ -29,8 +29,8 @@ async function getFoods(req, res) {
 
 async function createFood(req, res) {
     let { name, sizes } = req.body
-    const files = req.files
-    if (!files || files.length === 0) {
+    const image = req.file ? req.file.filename : null
+    if (!image) {
         return res.status(400).json({ message: 'Không có ảnh được upload' })
     }
 
@@ -40,8 +40,6 @@ async function createFood(req, res) {
         }
 
         if (!name || !Array.isArray(sizes) || sizes.length === 0) return res.status(400).json({ message: 'Tên món ăn và danh sách size là bắt buộc.' })
-
-        const image = files[0].filename
         const newFood = await Food.create({
             name,
             image,
@@ -61,7 +59,75 @@ async function createFood(req, res) {
     }
 }
 
+async function updateFood(req, res) {
+    const id = Number(req.params.id)
+    const { name, sizes } = req.body
+    let sizesData = sizes
+
+    if (typeof sizes === 'string') {
+        try {
+            sizesData = JSON.parse(sizes)
+        } catch (e) {
+            return res.status(400).json({ message: 'Invalid sizes format' })
+        }
+    }
+
+    const image = req.file ? req.file.filename : null
+
+    try {
+        const existingFood = await Food.findByPk(id, { include: 'sizes' })
+        if (!existingFood) return res.status(404).json({ message: 'Food not found' })
+
+        if (image) {
+            const oldImage = existingFood.image
+            existingFood.image = image
+
+            if (oldImage) {
+                try {
+                    const oldImagePath = `./uploads/foods/${oldImage}`
+                    if (fs.existsSync(oldImagePath)) {
+                        await fs.promises.unlink(oldImagePath)
+                    }
+                } catch (error) {
+                    console.error(error)
+                }
+            }
+        }
+
+        if (name !== undefined) {
+            existingFood.name = name
+        }
+
+        await existingFood.save()
+
+        if (sizesData !== undefined) {
+            await FoodSize.destroy({ where: { foodId: id } })
+
+            for (const s of sizesData) {
+                if (!s.size || !s.price) {
+                    return res.status(400).json({ message: 'Size và Price không được để trống' })
+                }
+
+                await FoodSize.create({
+                    foodId: id,
+                    size: s.size,
+                    price: s.price,
+                    status: s.status ?? true,
+                })
+            }
+        }
+
+        const updatedFood = await Food.findByPk(id, { include: 'sizes' })
+        res.status(200).json(updatedFood)
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ message: 'error update food' })
+    }
+}
+
+
 module.exports = {
     getFoods,
-    createFood
+    createFood,
+    updateFood
 }

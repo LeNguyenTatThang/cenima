@@ -9,20 +9,23 @@ import {
     Box,
     RadioGroup,
     FormControlLabel,
-    Radio
+    Radio,
+    IconButton
 } from "@mui/material"
 import CustomDialog from "../../../components/dashboard/CustomDialog"
-import { FoodType } from "../../../type/types"
-import { getAllFoods } from "../../../services/foodApi"
-
+import { FoodSizesType, FoodType } from "../../../type/types"
+import { getAllFoods, updateFood } from "../../../services/foodApi"
+import { Edit, Delete } from "@mui/icons-material"
+import FoodEdit from "./FoodEdit"
 const sizes = ["Mặc định", "Vừa", "Lớn"]
 type SizeKey = typeof sizes[number]
 const Food = () => {
     const [foods, setFoods] = useState<FoodType[]>([])
     const [order, setOrder] = useState<"asc" | "desc">("asc")
     const [isOpen, setIsOpen] = useState(false)
+    const [isOpenEdit, setIsOpenEdit] = useState(false)
     const [foodName, setFoodName] = useState("")
-    const [imageFiles, setImageFiles] = useState<File[]>([])
+    const [imageFiles, setImageFiles] = useState<File | null>(null)
     const [sizeType, setSizeType] = useState<"mac-dinh" | "nhieu-size">("mac-dinh")
     const [prices, setPrices] = useState<Record<SizeKey, string>>({
         "Mặc định": "",
@@ -30,7 +33,7 @@ const Food = () => {
         "Lớn": ""
     })
     const [loading, setLoading] = useState(false)
-
+    const [selectFood, setSelectFood] = useState<FoodType | null>(null)
     const handlePriceChange = (size: string, value: string) => {
         if (/^\d*$/.test(value)) {
             setPrices(prev => ({ ...prev, [size]: value }))
@@ -80,18 +83,11 @@ const Food = () => {
 
             return
         }
-        if (imageFiles.length === 0) {
-            alert("Vui lòng chọn ảnh món ăn")
-
-            return
-        }
         try {
             setLoading(true)
             const formData = new FormData()
             formData.append("name", foodName)
-            imageFiles.forEach(file => {
-                formData.append("foods", file)
-            })
+            formData.append('foods', imageFiles as File)
             formData.append("sizes", JSON.stringify(sizesData))
 
             const res = await fetch("http://localhost:5000/api/createFood", {
@@ -105,7 +101,7 @@ const Food = () => {
             setFoods(prev => [...prev, newFood])
             setIsOpen(false)
             setFoodName("")
-            setImageFiles([])
+            setImageFiles(null)
             setPrices({
                 "Mặc định": "",
                 "Vừa": "",
@@ -122,6 +118,46 @@ const Food = () => {
         setSizeType(event.target.value as "mac-dinh" | "nhieu-size")
     }
 
+    const handleEditFood = (id: number) => {
+        const food = foods.find(f => f.id === id)
+        if (food) {
+            setSelectFood(food)
+            setIsOpenEdit(true)
+        }
+    }
+
+    const handleDeleteFood = (id: number) => {
+        console.log(id)
+    }
+
+    const handleUpdate = async (form: { name: string; image: string; sizes: FoodSizesType[]; imageFile?: File | null }) => {
+        if (!selectFood) return
+        try {
+            await updateFood(selectFood.id, {
+                name: form.name,
+                sizes: form.sizes,
+                imageFile: form.imageFile || undefined,
+            })
+
+            setFoods(prevFoods =>
+                prevFoods.map(f =>
+                    f.id === selectFood.id
+                        ? {
+                            ...f,
+                            name: form.name,
+                            sizes: form.sizes,
+                            image: form.imageFile ? URL.createObjectURL(form.imageFile) : f.image,
+                        }
+                        : f
+                )
+            )
+            setIsOpenEdit(false)
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
+
     return (
         <>
             <Paper sx={{ width: "100%", overflow: "hidden", p: 2 }}>
@@ -135,7 +171,7 @@ const Food = () => {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>ID</TableCell>
+                                <TableCell>#</TableCell>
                                 <TableCell>Ảnh</TableCell>
                                 <TableCell sortDirection={order}>
                                     <TableSortLabel
@@ -169,13 +205,27 @@ const Food = () => {
                                             </div>
                                         ))}
                                     </TableCell>
+                                    <TableCell>
+                                        <IconButton
+                                            color="primary"
+                                            onClick={() => handleEditFood(row.id)}
+                                        >
+                                            <Edit />
+                                        </IconButton>
+                                        <IconButton
+                                            color="secondary"
+                                            onClick={() => handleDeleteFood(row.id)}
+                                        >
+                                            <Delete />
+                                        </IconButton>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
                 </TableContainer>
             </Paper>
-
+            <FoodEdit isOpen={isOpenEdit} onClose={() => setIsOpenEdit(false)} food={selectFood} onSubmit={handleUpdate} />
             <CustomDialog
                 open={isOpen}
                 onClose={() => setIsOpen(false)}
@@ -201,28 +251,26 @@ const Food = () => {
                     >
                         Chọn ảnh
                         <input
+                            name="foods"
                             type="file"
                             accept="image/*"
                             hidden
-                            multiple
                             onChange={(e) => {
                                 const files = e.target.files
                                 if (files) {
-                                    setImageFiles(Array.from(files))
+                                    setImageFiles(files[0])
                                 }
                             }}
                         />
                     </Button>
 
-                    {imageFiles.length > 0 && (
-                        <Box mt={1}>
-                            {imageFiles.map((file, index) => (
-                                <Typography key={index} variant="body2">
-                                    {file.name}
-                                </Typography>
-                            ))}
-                        </Box>
-                    )}
+                    <Box mt={1}>
+
+                        <Typography variant="body2">
+                            {imageFiles?.name}
+                        </Typography>
+
+                    </Box>
 
                     <Box>
                         <Typography variant="subtitle1">Chọn kiểu size</Typography>
