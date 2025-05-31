@@ -28,3 +28,12 @@ export const updateFood = async (
 
     return response.json()
 }
+
+export const deleteFood = async (id: number) => {
+    const response = await fetch(`${API_URL}/deleteFood/${id}`, {
+        method: "DELETE"
+    })
+    if (!response.ok) throw new Error("Failed to delete food")
+
+    return true
+}
