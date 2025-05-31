@@ -33,6 +33,7 @@ import Auditoriums from './pages/dashboard/Theater/View/Auditoriums'
 import Room from './pages/dashboard/Theater/View/Room/Room'
 import AppLoader from './components/common/AppLoader'
 import Food from './pages/dashboard/Food/Food'
+import Price from './pages/dashboard/Price/Price'
 function App() {
 
   return (
@@ -69,6 +70,7 @@ function App() {
               <Route path='/dashboard/theater/view/:id' element={<Layout> <Auditoriums /></Layout>} />
               <Route path='/dashboard/theater/view/:theater_id/room/:id' element={<Layout> <Room /></Layout>} />
               <Route path="/dashboard/food" element={<Layout> <Food /> </Layout>} />
+              <Route path="/dashboard/ticket" element={<Layout> <Price /> </Layout>} />
             </Routes>
           </AppLoader>
         </div>
