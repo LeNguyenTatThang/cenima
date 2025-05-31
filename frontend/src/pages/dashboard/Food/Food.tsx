@@ -10,13 +10,15 @@ import {
     RadioGroup,
     FormControlLabel,
     Radio,
-    IconButton
+    IconButton,
+    DialogContentText
 } from "@mui/material"
 import CustomDialog from "../../../components/dashboard/CustomDialog"
 import { FoodSizesType, FoodType } from "../../../type/types"
-import { getAllFoods, updateFood } from "../../../services/foodApi"
+import { deleteFood, getAllFoods, updateFood } from "../../../services/foodApi"
 import { Edit, Delete } from "@mui/icons-material"
 import FoodEdit from "./FoodEdit"
+import { useSnackbar } from "../../../components/dashboard/SnackbarContext"
 const sizes = ["Mặc định", "Vừa", "Lớn"]
 type SizeKey = typeof sizes[number]
 const Food = () => {
@@ -24,6 +26,7 @@ const Food = () => {
     const [order, setOrder] = useState<"asc" | "desc">("asc")
     const [isOpen, setIsOpen] = useState(false)
     const [isOpenEdit, setIsOpenEdit] = useState(false)
+    const [isOpenDelete, setIsOpenDelete] = useState(false)
     const [foodName, setFoodName] = useState("")
     const [imageFiles, setImageFiles] = useState<File | null>(null)
     const [sizeType, setSizeType] = useState<"mac-dinh" | "nhieu-size">("mac-dinh")
@@ -34,6 +37,7 @@ const Food = () => {
     })
     const [loading, setLoading] = useState(false)
     const [selectFood, setSelectFood] = useState<FoodType | null>(null)
+    const { showMessage } = useSnackbar()
     const handlePriceChange = (size: string, value: string) => {
         if (/^\d*$/.test(value)) {
             setPrices(prev => ({ ...prev, [size]: value }))
@@ -126,9 +130,6 @@ const Food = () => {
         }
     }
 
-    const handleDeleteFood = (id: number) => {
-        console.log(id)
-    }
 
     const handleUpdate = async (form: { name: string; image: string; sizes: FoodSizesType[]; imageFile?: File | null }) => {
         if (!selectFood) return
@@ -151,12 +152,34 @@ const Food = () => {
                         : f
                 )
             )
+            showMessage("Cập nhật món ăn thành công")
             setIsOpenEdit(false)
         } catch (err) {
             console.error(err)
         }
     }
 
+
+    const handleDeleteFood = (id: number) => {
+        const food = foods.find(f => f.id === id)
+        if (food) {
+            setSelectFood(food)
+            setIsOpenDelete(true)
+        }
+    }
+    const handleDialogDeleteFood = async () => {
+        if (!selectFood) return
+        const { id } = selectFood
+        try {
+            await deleteFood(id)
+            getAllFoods()
+            setFoods(prevFoods => prevFoods.filter(f => f.id !== id))
+            showMessage("Xoá món ăn thành công")
+        } catch (err) {
+            console.log(err)
+        }
+        setIsOpenDelete(false)
+    }
 
     return (
         <>
@@ -319,6 +342,20 @@ const Food = () => {
                             </>
                         )}
                     </Box>
+                </DialogContent>
+            </CustomDialog>
+            <CustomDialog
+                open={isOpenDelete}
+                onClose={() => setIsOpenDelete(false)}
+                title="Xóa món ăn"
+                confirmText="Xóa"
+                cancelText="Hủy"
+                onSubmit={handleDialogDeleteFood}
+            >
+                <DialogContent>
+                    <DialogContentText>
+                        Bạn có chắc muốn xóa món ăn này không?
+                    </DialogContentText>
                 </DialogContent>
             </CustomDialog>
         </>

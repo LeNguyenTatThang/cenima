@@ -51,8 +51,12 @@ async function createFood(req, res) {
         }, {
             include: [{ model: FoodSize, as: 'sizes' }]
         })
-
-        res.status(201).json(newFood)
+        const baseUrl = 'http://localhost:5000/uploads/foods/'
+        const foodWithFullImageUrl = {
+            ...newFood.toJSON(),
+            image: newFood.image ? baseUrl + newFood.image : null
+        }
+        res.status(201).json(foodWithFullImageUrl)
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: 'error create food' })
@@ -125,9 +129,22 @@ async function updateFood(req, res) {
     }
 }
 
+async function deleteFood(req, res) {
+    try {
+        const { id } = req.params
+        const existingFood = await Food.findByPk(id)
+        if (!existingFood) return res.status(404).json({ message: 'Food not found' })
+        await existingFood.destroy()
+        res.status(200).json({ message: 'Xoá món ăn thành công' })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'error delete food' })
+    }
+}
 
 module.exports = {
     getFoods,
     createFood,
-    updateFood
+    updateFood,
+    deleteFood
 }
