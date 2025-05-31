@@ -15,6 +15,33 @@ body {
   overflow: hidden;
 }
 
+.loader-wrapper {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease;
+}
+
+.loader-wrapper.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.main-content.hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.main-content.visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
 .loading-container {
   width: 100%;
   max-width: 520px;
@@ -77,10 +104,26 @@ body {
   }
 }
 
-@for $i from 1 through 7 {
-  .loading-text span:nth-child(#{$i}) {
-    animation-delay: $i * 0.1s;
-  }
+.loading-text span:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.loading-text span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.loading-text span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.loading-text span:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.loading-text span:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.loading-text span:nth-child(6) {
+  animation-delay: 0.6s;
+}
+.loading-text span:nth-child(7) {
+  animation-delay: 0.7s;
 }
 
 @keyframes moveLetters {
