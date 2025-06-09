@@ -17,22 +17,22 @@ function Footer() {
 
             <div className="footer-content flicker">
                 <div className="ascii-art">
-                    <h1>  <span className="highlight-c">C</span>enima</h1>
+                    <h1>  <span className="highlight-c">C</span>inema</h1>
                 </div>
                 <div className="footer-text">
-                    <h3>NOLOVE DIGITAL CEMETERY</h3>
-                    <p>disconnected since 1998 · lost in the static · forever searching</p>
+                    <h3>THE CINEMATIC EXPERIENCE</h3>
+                    <p>immersed in stories · lights, camera, action · forever rolling</p>
                 </div>
                 <div className="sesh-links">
-                    <a href="#" className="sesh-link">bones</a>
-                    <a href="#" className="sesh-link">sesh</a>
-                    <a href="#" className="sesh-link">surrender</a>
+                    <a href="#" className="sesh-link">now showing</a>
+                    <a href="#" className="sesh-link">coming soon</a>
+                    <a href="#" className="sesh-link">contact</a>
                 </div>
             </div>
 
             <div className="sesh-ticker">
                 <div className="ticker-content">
-                    THE CURE FOR PAIN IS IN THE PAIN · TEAMSESH · BONES · SURRENDERDOROTHY · OREGONTRAIL · NOLOVE · DIGITAL ARTIFACTS · THE CURE FOR PAIN IS IN THE PAIN · TEAMSESH · BONES · SURRENDERDOROTHY · OREGONTRAIL · NOLOVE · DIGITAL ARTIFACTS
+                    EXPERIENCE THE MAGIC · MOVIES · POPCORN · CINEMA LOVERS · EXPERIENCE THE MAGIC · MOVIES · POPCORN · CINEMA LOVERS ·
                 </div>
             </div>
         </footer>
