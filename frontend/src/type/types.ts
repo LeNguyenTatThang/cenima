@@ -78,3 +78,10 @@ export interface MappedFood {
     price: number
     sizes: FoodSizesType[]
 }
+
+export interface DrinkType {
+    id: number
+    name: string
+    price: number
+    image: string
+}
