@@ -35,6 +35,7 @@ import AppLoader from './components/common/AppLoader'
 import Food from './pages/dashboard/Food/Food'
 import Price from './pages/dashboard/Price/Price'
 import Promotions from './pages/client/Promotions'
+import Drink from './pages/dashboard/Drink/Drink'
 function App() {
 
   return (
@@ -73,6 +74,7 @@ function App() {
               <Route path='/dashboard/theater/view/:theater_id/room/:id' element={<Layout> <Room /></Layout>} />
               <Route path="/dashboard/food" element={<Layout> <Food /> </Layout>} />
               <Route path="/dashboard/ticket" element={<Layout> <Price /> </Layout>} />
+              <Route path="/dashboard/drink" element={<Layout> <Drink /> </Layout>} />
             </Routes>
           </AppLoader>
         </div>
