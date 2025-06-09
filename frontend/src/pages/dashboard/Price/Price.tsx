@@ -6,9 +6,14 @@ import {
     TableHead,
     TableRow,
     Paper,
+    TextField,
+    Stack,
+    Button,
 } from "@mui/material"
+import { useState, useMemo } from "react"
+import { isEqual, cloneDeep } from "lodash"
 
-const ticketData = [
+const initialTicketData = [
     {
         day: "Thứ 2, 4, 5",
         showtimes: [
@@ -105,189 +110,122 @@ const ticketData = [
 ]
 
 export default function Prince() {
-    return (
-        <TableContainer component={Paper}>
-            <Table
-                sx={{
-                    "& td, & th": {
-                        textAlign: "center",
-                        verticalAlign: "middle",
-                    },
-                    "& .special-cell": {
-                        textAlign: "start !important",
-                        fontWeight: "bold",
-                        paddingLeft: "3rem"
-                    },
-                }}
+    const [ticketData, setTicketData] = useState(() => cloneDeep(initialTicketData))
+    const [editingCell, setEditingCell] = useState<{
+        rowIndex: number,
+        showtimeIndex: number,
+        priceIndex: number
+    } | null>(null)
+
+    const handleChangePrice = (value: string, rowIndex: number, showtimeIndex: number, priceIndex: number) => {
+        const newData = cloneDeep(ticketData)
+        newData[rowIndex].showtimes[showtimeIndex].prices[priceIndex] = value
+        setTicketData(newData)
+    }
+
+    const hasChanged = useMemo(() => !isEqual(ticketData, initialTicketData), [ticketData])
+
+    const resetChanges = () => {
+        setTicketData(cloneDeep(initialTicketData))
+        setEditingCell(null)
+    }
+
+    const saveChanges = () => {
+        console.log("Save to server:", ticketData)
+
+    }
+
+    const renderPriceCell = (rowIndex: number, showtimeIndex: number, priceIndex: number) => {
+        const price = ticketData[rowIndex].showtimes[showtimeIndex].prices[priceIndex]
+        const isEditing =
+            editingCell &&
+            editingCell.rowIndex === rowIndex &&
+            editingCell.showtimeIndex === showtimeIndex &&
+            editingCell.priceIndex === priceIndex
+
+        return (
+            <TableCell
+                onClick={() =>
+                    setEditingCell({ rowIndex, showtimeIndex, priceIndex })
+                }
+                sx={{ cursor: "pointer", borderRight: "1px solid rgba(255,255,255,0.5)" }}
             >
-                <TableHead sx={{ background: "linear-gradient(to right, #003366, #004080)" }}>
-                    <TableRow>
-                        <TableCell
-                            sx={{
-                                color: "#fff",
-                                fontWeight: "bold",
-                                borderRight: "1px solid rgba(255,255,255,0.5)",
-                            }}
-                        >
-                            Thời gian
-                        </TableCell>
-                        <TableCell
-                            sx={{
-                                color: "#fff",
-                                fontWeight: "bold",
-                                borderRight: "1px solid rgba(255,255,255,0.5)",
-                            }}
-                        >
-                            Suất chiếu
-                        </TableCell>
-                        <TableCell
-                            sx={{
-                                color: "#fff",
-                                fontWeight: "bold",
-                                borderRight: "1px solid rgba(255,255,255,0.5)",
-                            }}
-                        >
-                            ⭐ Thành viên / Người lớn
-                        </TableCell>
-                        <TableCell
-                            sx={{
-                                color: "#fff",
-                                fontWeight: "bold",
-                                borderRight: "1px solid rgba(255,255,255,0.5)",
-                            }}
-                        >
-                            U22
-                        </TableCell>
-                        <TableCell
-                            sx={{
-                                color: "#fff",
-                                fontWeight: "bold",
-                            }}
-                        >
-                            Trẻ em / Người cao tuổi
-                        </TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {ticketData.map((item, index) => {
-                        const isSpecialDay = item.showtimes.length === 1 && item.showtimes[0].time === ""
-                        const showtimeCount = item.showtimes.length
-                        const isTuesday = item.day === "Thứ 3"
-
-                        const priceTypes = [0, 1, 2]
-                        const isPriceUniform = (priceIndex: number) => {
-                            const firstPrice = item.showtimes[0].prices[priceIndex]
-
-                            return item.showtimes.every(s => s.prices[priceIndex] === firstPrice)
+                {isEditing ? (
+                    <TextField
+                        variant="standard"
+                        autoFocus
+                        value={price}
+                        onChange={(e) =>
+                            handleChangePrice(e.target.value, rowIndex, showtimeIndex, priceIndex)
                         }
+                        onBlur={() => setEditingCell(null)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") setEditingCell(null)
+                        }}
+                        sx={{ input: { color: "#fff", textAlign: "center" } }}
+                    />
+                ) : (
+                    price
+                )}
+            </TableCell>
+        )
+    }
 
-                        const uniformPrices = priceTypes.map(idx =>
-                            isPriceUniform(idx) ? item.showtimes[0].prices[idx] : null
-                        )
+    return (
+        <>
+            <TableContainer component={Paper}>
+                <Table sx={{
+                    "& td, & th": { textAlign: "center", verticalAlign: "middle" },
+                    "& .special-cell": {
+                        textAlign: "start !important", fontWeight: "bold", paddingLeft: "3rem"
+                    },
+                }}>
+                    <TableHead sx={{ background: "linear-gradient(to right, #003366, #004080)" }}>
+                        <TableRow>
+                            <TableCell sx={{ color: "#fff", fontWeight: "bold", borderRight: "1px solid rgba(255,255,255,0.5)" }}>Thời gian</TableCell>
+                            <TableCell sx={{ color: "#fff", fontWeight: "bold", borderRight: "1px solid rgba(255,255,255,0.5)" }}>Suất chiếu</TableCell>
+                            <TableCell sx={{ color: "#fff", fontWeight: "bold", borderRight: "1px solid rgba(255,255,255,0.5)" }}>⭐ Thành viên / Người lớn</TableCell>
+                            <TableCell sx={{ color: "#fff", fontWeight: "bold", borderRight: "1px solid rgba(255,255,255,0.5)" }}>U22</TableCell>
+                            <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Trẻ em / Người cao tuổi</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {ticketData.map((item, rowIndex) =>
+                            item.showtimes.map((s, showtimeIndex) => {
+                                const rowStyle = {
+                                    background: "linear-gradient(to right,rgb(37, 82, 127),rgb(85, 141, 197))",
+                                    color: "#fff"
+                                }
 
-                        if (isSpecialDay) {
-
-                            return (
-                                <TableRow
-                                    key={index}
-                                    sx={{
-                                        background: "linear-gradient(to right,rgb(8, 90, 172),rgb(70, 214, 53))",
-                                        color: "#fff",
-                                    }}
-                                >
-                                    <TableCell colSpan={2} className="special-cell" sx={{
-                                        borderRight: "1px solid rgba(255,255,255,0.5)", color: "#fff",
-                                        fontWeight: "bold"
-                                    }}>
-                                        ⭐ {item.day}
-                                    </TableCell>
-                                    <TableCell
-                                        sx={{ borderRight: "1px solid rgba(255,255,255,0.5)" }}
-                                    >
-                                        {uniformPrices[0]}
-                                    </TableCell>
-                                    <TableCell
-                                        sx={{ borderRight: "1px solid rgba(255,255,255,0.5)" }}
-                                    >
-                                        {uniformPrices[1]}
-                                    </TableCell>
-                                    <TableCell>{uniformPrices[2]}</TableCell>
-                                </TableRow>
-                            )
-                        }
-
-                        return item.showtimes.map((s, idx) => {
-                            const rowStyle = {
-                                background: isTuesday
-                                    ? "linear-gradient(to right,rgb(150, 153, 55),rgb(172, 137, 71))"
-                                    : "linear-gradient(to right,rgb(37, 82, 127),rgb(85, 141, 197))",
-                                color: "#fff",
-                                fontWeight: isTuesday ? "bold" : "normal",
-                            }
-
-                            return (
-                                <TableRow key={`${index}-${idx}`} sx={rowStyle}>
-                                    {idx === 0 && (
-                                        <TableCell
-                                            rowSpan={showtimeCount}
-                                            sx={{ borderRight: "1px solid rgba(255,255,255,0.5)", color: "#fff", fontWeight: "bold" }}
-                                        >
-                                            {item.day}
-                                        </TableCell>
-                                    )}
-
-                                    <TableCell sx={{ borderRight: "1px solid rgba(255,255,255,0.5)" }}>
-                                        {s.time}
-                                    </TableCell>
-
-                                    {/* Thành viên / Người lớn */}
-                                    {uniformPrices[0] !== null ? (
-                                        idx === 0 ? (
+                                return (
+                                    <TableRow key={`${rowIndex}-${showtimeIndex}`} sx={rowStyle}>
+                                        {showtimeIndex === 0 && (
                                             <TableCell
-                                                rowSpan={showtimeCount}
-                                                sx={{ borderRight: "1px solid rgba(255,255,255,0.5)" }}
+                                                rowSpan={item.showtimes.length}
+                                                sx={{ borderRight: "1px solid rgba(255,255,255,0.5)", color: "#fff", fontWeight: "bold" }}
                                             >
-                                                {uniformPrices[0]}
+                                                {item.day}
                                             </TableCell>
-                                        ) : null
-                                    ) : (
-                                        <TableCell sx={{ borderRight: "1px solid rgba(255,255,255,0.5)" }}>
-                                            {s.prices[0]}
-                                        </TableCell>
-                                    )}
+                                        )}
+                                        <TableCell sx={{ borderRight: "1px solid rgba(255,255,255,0.5)" }}>{s.time}</TableCell>
 
-                                    {/* U22 */}
-                                    {uniformPrices[1] !== null ? (
-                                        idx === 0 ? (
-                                            <TableCell
-                                                rowSpan={showtimeCount}
-                                                sx={{ borderRight: "1px solid rgba(255,255,255,0.5)" }}
-                                            >
-                                                {uniformPrices[1]}
-                                            </TableCell>
-                                        ) : null
-                                    ) : (
-                                        <TableCell sx={{ borderRight: "1px solid rgba(255,255,255,0.5)" }}>
-                                            {s.prices[1]}
-                                        </TableCell>
-                                    )}
+                                        {renderPriceCell(rowIndex, showtimeIndex, 0)}
+                                        {renderPriceCell(rowIndex, showtimeIndex, 1)}
+                                        {renderPriceCell(rowIndex, showtimeIndex, 2)}
+                                    </TableRow>
+                                )
+                            })
+                        )}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            {hasChanged && (
+                <Stack direction="row" spacing={2} mt={2} justifyContent="flex-end">
+                    <Button variant="outlined" color="secondary" onClick={resetChanges}>🔄 Reset</Button>
+                    <Button variant="contained" color="primary" onClick={saveChanges}>💾 Lưu</Button>
+                </Stack>
+            )}
 
-                                    {/* Trẻ em / Người cao tuổi */}
-                                    {uniformPrices[2] !== null ? (
-                                        idx === 0 ? (
-                                            <TableCell rowSpan={showtimeCount}>
-                                                {uniformPrices[2]}
-                                            </TableCell>
-                                        ) : null
-                                    ) : (
-                                        <TableCell>{s.prices[2]}</TableCell>
-                                    )}
-                                </TableRow>
-                            )
-                        })
-                    })}
-                </TableBody>
-            </Table>
-        </TableContainer>
+        </>
     )
 }

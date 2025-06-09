@@ -34,6 +34,7 @@ import Room from './pages/dashboard/Theater/View/Room/Room'
 import AppLoader from './components/common/AppLoader'
 import Food from './pages/dashboard/Food/Food'
 import Price from './pages/dashboard/Price/Price'
+import Promotions from './pages/client/Promotions'
 function App() {
 
   return (
@@ -55,6 +56,7 @@ function App() {
               <Route path="/theater/theaters-special" element={<><Nav /><TheaterSpecial /><Footer /></>} />
               <Route path="/theater/3d" element={<><Nav /><Special3D /><Footer /></>} />
               <Route path="/movie/:slug" element={<><Nav /><DetailMovie /><Footer /></>} />
+              <Route path="/event/promotions" element={<><Nav /><Promotions /><Footer /></>} />
 
               <Route path="/login" element={<><Login /></>} />
               <Route path="*" element={<NotFound />} />
