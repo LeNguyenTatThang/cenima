@@ -17,21 +17,8 @@ import {
 import { Add, Delete, Edit } from '@mui/icons-material'
 import { DrinkType } from '../../../type/types'
 import CustomDialog from '../../../components/dashboard/CustomDialog'
+import { createdDrink, getAllDrinks } from '../../../services/drinkApi'
 
-const initialDrinks: DrinkType[] = [
-    {
-        id: 1,
-        name: 'Pepsi',
-        price: 15000,
-        image: 'https://www.shutterstock.com/image-photo/mykolaiv-ukraine-june-9-2021-600nw-2027510024.jpg'
-    },
-    {
-        id: 2,
-        name: 'Coca',
-        price: 18000,
-        image: 'https://quick-live.eu-central-1.linodeobjects.com/media/images/COCA_DETAIL_SABBSHM.format-jpeg.jpegquality-75.jpg'
-    }
-]
 
 const Drink = () => {
     const [drinks, setDrinks] = useState<DrinkType[]>([])
@@ -41,16 +28,40 @@ const Drink = () => {
     const [editingDrink, setEditingDrink] = useState<DrinkType | null>(null)
     const [form, setForm] = useState({ name: '', price: '', image: '' })
     const [selectedDrinkId, setSelectedDrinkId] = useState<number | null>(null)
+    const [preview, setPreview] = useState<string>('')
+    const [imageFile, setImageFile] = useState<File | null>(null)
 
     useEffect(() => {
+        fetchDrinks()
+    }, [])
+
+    const fetchDrinks = async () => {
+        try {
+            const res = await getAllDrinks()
+            console.log(res)
+            setDrinks(res)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    useEffect(() => {
         setTimeout(() => {
-            setDrinks(initialDrinks)
+            //setDrinks(initialDrinks)
             setLoading(false)
         }, 1000)
     }, [])
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        const imageURL = URL.createObjectURL(file)
+        setPreview(imageURL)
+        setImageFile(file)
+    }
     const handleOpenAdd = () => {
         setForm({ name: '', price: '', image: '' })
+        setPreview('')
         setEditingDrink(null)
         setOpen(true)
     }
@@ -61,6 +72,7 @@ const Drink = () => {
             price: drink.price.toString(),
             image: drink.image
         })
+        setPreview(drink.image)
         setEditingDrink(drink)
         setOpen(true)
     }
@@ -71,22 +83,48 @@ const Drink = () => {
         setForm({ ...form, [e.target.name]: e.target.value })
     }
 
-    const handleSubmit = () => {
-        const newDrink: DrinkType = {
-            id: editingDrink ? editingDrink.id : Date.now(),
-            name: form.name,
-            price: parseInt(form.price),
-            image: form.image
+    const handleSubmit = async () => {
+        if (!form.name || !form.price) {
+            alert('Vui lòng nhập tên và giá đồ uống')
+
+            return
         }
 
-        if (editingDrink) {
-            setDrinks(prev => prev.map(d => d.id === editingDrink.id ? newDrink : d))
-        } else {
-            setDrinks(prev => [...prev, newDrink])
+        const formData = new FormData()
+        formData.append('name', form.name)
+        formData.append('price', form.price)
+
+        if (imageFile) {
+            formData.append('drinkImage', imageFile)
         }
 
-        handleClose()
+        try {
+            if (editingDrink) {
+                // ✅ Nếu có API updateDrink hỗ trợ FormData
+                formData.append('id', editingDrink.id.toString())
+                //await updateDrink(formData) // Giả sử bạn có router.put('/updateDrink', upload.single, ...)
+                setDrinks(prev => prev.map(d =>
+                    d.id === editingDrink.id
+                        ? { ...d, name: form.name, price: parseInt(form.price), image: imageFile ? URL.createObjectURL(imageFile) : d.image }
+                        : d
+                ))
+            } else {
+                // ✅ Gọi API tạo mới
+                await createdDrink(formData)
+            }
+
+            // Reset form
+            setForm({ name: '', price: '', image: '' })
+            setImageFile(null)
+            setPreview('')
+            setEditingDrink(null)
+            handleClose()
+        } catch (err) {
+            console.error('Lỗi:', err)
+            alert('Thao tác thất bại!')
+        }
     }
+
 
     const handleDelete = () => {
         if (selectedDrinkId !== null) {
@@ -126,7 +164,19 @@ const Drink = () => {
                                     <Typography variant="h6" fontWeight="bold" noWrap>
                                         {drink.name}
                                     </Typography>
-                                    <Chip label={`${drink.price.toLocaleString()} đ`} color="primary" sx={{ mt: 1 }} />
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Chip label={`${drink.price.toLocaleString()} đ`} color="primary" sx={{ mt: 1 }} />
+                                        <Chip
+                                            label={drink.status === 1 ? 'Hoạt động' :
+                                                'Không hoạt động'}
+                                            color={
+                                                drink.status === 1 ? 'success' : 'error'
+                                            }
+                                            sx={{ mt: 1 }}
+                                        />
+                                    </div>
+
+
                                     <Stack direction="row" justifyContent="end" gap={1} mt={1}>
                                         <IconButton size="small" color="primary" onClick={() => handleOpenEdit(drink)}>
                                             <Edit fontSize="small" />
@@ -175,14 +225,26 @@ const Drink = () => {
                         value={form.price}
                         onChange={handleChange}
                     />
-                    <TextField
-                        label="Link hình ảnh"
-                        name="image"
+                    <Button
+                        variant="outlined"
+                        component="label"
                         fullWidth
-                        margin="dense"
-                        value={form.image}
-                        onChange={handleChange}
-                    />
+                        sx={{ mt: 2 }}
+                    >
+                        Chọn ảnh
+                        <input
+                            name="foods"
+                            type="file"
+                            accept="image/*"
+                            hidden
+                            onChange={handleFileChange}
+                        />
+                    </Button>
+                    {preview && (
+                        <Box mt={2} textAlign="center">
+                            <img src={preview} alt="Xem trước" style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 8 }} />
+                        </Box>
+                    )}
                 </DialogContent>
             </CustomDialog>
             <CustomDialog

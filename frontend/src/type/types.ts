@@ -84,4 +84,5 @@ export interface DrinkType {
     name: string
     price: number
     image: string
+    status: number
 }
