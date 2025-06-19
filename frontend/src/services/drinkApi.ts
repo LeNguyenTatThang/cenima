@@ -21,3 +21,31 @@ export const createdDrink = async (formData: FormData) => {
         console.log(err)
     }
 }
+
+export const updateDrink = async (id: number, formData: FormData) => {
+    try {
+        const res = await fetch(`${API_URL}/updateDrink/${id}`, {
+            method: 'PUT',
+            body: formData
+        })
+        if (!res.ok) throw new Error("Không thể cập nhật nuoc")
+
+        return await res.json()
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+export const deleteDrink = async (id: number) => {
+    try {
+        const res = await fetch(`${API_URL}/deleteDrink/${id}`, {
+            method: 'DELETE'
+        })
+        if (!res.ok) throw new Error("Không thể xoa nuoc")
+
+        return await res.json()
+    } catch (err) {
+        console.log(err)
+    }
+}

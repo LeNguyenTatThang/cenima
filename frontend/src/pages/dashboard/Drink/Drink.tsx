@@ -17,8 +17,8 @@ import {
 import { Add, Delete, Edit } from '@mui/icons-material'
 import { DrinkType } from '../../../type/types'
 import CustomDialog from '../../../components/dashboard/CustomDialog'
-import { createdDrink, getAllDrinks } from '../../../services/drinkApi'
-
+import { createdDrink, deleteDrink, getAllDrinks, updateDrink } from '../../../services/drinkApi'
+import { useSnackbar } from '../../../components/dashboard/SnackbarContext'
 
 const Drink = () => {
     const [drinks, setDrinks] = useState<DrinkType[]>([])
@@ -30,6 +30,7 @@ const Drink = () => {
     const [selectedDrinkId, setSelectedDrinkId] = useState<number | null>(null)
     const [preview, setPreview] = useState<string>('')
     const [imageFile, setImageFile] = useState<File | null>(null)
+    const { showMessage } = useSnackbar()
 
     useEffect(() => {
         fetchDrinks()
@@ -46,7 +47,6 @@ const Drink = () => {
     }
     useEffect(() => {
         setTimeout(() => {
-            //setDrinks(initialDrinks)
             setLoading(false)
         }, 1000)
     }, [])
@@ -85,7 +85,7 @@ const Drink = () => {
 
     const handleSubmit = async () => {
         if (!form.name || !form.price) {
-            alert('Vui lòng nhập tên và giá đồ uống')
+            showMessage('Vui lòng nhập tên và giá đồ uống')
 
             return
         }
@@ -100,20 +100,20 @@ const Drink = () => {
 
         try {
             if (editingDrink) {
-                // ✅ Nếu có API updateDrink hỗ trợ FormData
                 formData.append('id', editingDrink.id.toString())
-                //await updateDrink(formData) // Giả sử bạn có router.put('/updateDrink', upload.single, ...)
+                await updateDrink(editingDrink.id, formData)
+                showMessage("Cập nhật đồ uống thành công")
                 setDrinks(prev => prev.map(d =>
                     d.id === editingDrink.id
                         ? { ...d, name: form.name, price: parseInt(form.price), image: imageFile ? URL.createObjectURL(imageFile) : d.image }
                         : d
                 ))
             } else {
-                // ✅ Gọi API tạo mới
                 await createdDrink(formData)
+                showMessage("Thêm đồ uống thành công")
+                fetchDrinks()
             }
 
-            // Reset form
             setForm({ name: '', price: '', image: '' })
             setImageFile(null)
             setPreview('')
@@ -121,17 +121,23 @@ const Drink = () => {
             handleClose()
         } catch (err) {
             console.error('Lỗi:', err)
-            alert('Thao tác thất bại!')
+            showMessage('Thao tác thất bại!')
         }
     }
 
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         if (selectedDrinkId !== null) {
+            await deleteDrink(selectedDrinkId)
+            showMessage("Xoá đồ uống thành công")
+            fetchDrinks()
             setDrinks(prev => prev.filter(d => d.id !== selectedDrinkId))
             setSelectedDrinkId(null)
             setOpenDelete(false)
         }
+        showMessage("Khong ton tai id")
+
+        return
     }
 
     return (
