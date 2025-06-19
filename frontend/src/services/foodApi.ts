@@ -8,6 +8,14 @@ export const getAllFoods = async () => {
 
     return res.json()
 }
+
+export const getAllFoodsFromCombo = async () => {
+    const res = await fetch(`${API_URL}/getFoodFromCombo`)
+    if (!res.ok) throw new Error("Không thể lấy danh sách món ăn")
+
+    return res.json()
+}
+
 export const updateFood = async (
     id: number,
     data: { name: string; sizes: FoodSizesType[]; imageFile?: File }

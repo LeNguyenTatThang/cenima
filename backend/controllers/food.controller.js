@@ -27,6 +27,25 @@ async function getFoods(req, res) {
     }
 }
 
+const getFoodFromCombo = async (req, res) => {
+    try {
+        const foods = await Food.findAll({
+            include: [{
+                model: FoodSize,
+                as: 'sizes',
+                where: { status: true }, // lọc size có status true
+                attributes: ['size', 'price', 'status']
+            }],
+            attributes: ['id', 'name']
+        })
+
+        res.status(200).json(foods)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'error get food' })
+    }
+}
+
 async function createFood(req, res) {
     let { name, sizes } = req.body
     const image = req.file ? req.file.filename : null
@@ -146,5 +165,6 @@ module.exports = {
     getFoods,
     createFood,
     updateFood,
-    deleteFood
+    deleteFood,
+    getFoodFromCombo
 }
