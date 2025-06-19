@@ -39,7 +39,6 @@ const Drink = () => {
     const fetchDrinks = async () => {
         try {
             const res = await getAllDrinks()
-            console.log(res)
             setDrinks(res)
         } catch (err) {
             console.log(err)

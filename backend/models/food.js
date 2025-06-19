@@ -6,6 +6,12 @@ module.exports = (sequelize, DataTypes) => {
   class Food extends Model {
     static associate(models) {
       Food.hasMany(models.FoodSize, { foreignKey: 'foodId', as: 'sizes' })
+      Food.belongsToMany(models.Combo, {
+        through: 'ComboFoods',
+        as: 'combos',
+        foreignKey: 'foodId'
+      })
+
     }
   }
   Food.init({

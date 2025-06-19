@@ -3,32 +3,37 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Drink extends Model {
+  class Combo extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Drink.belongsToMany(models.Combo, {
+      Combo.belongsToMany(models.Food, {
+        through: 'ComboFoods',
+        as: 'foods',
+        foreignKey: 'comboId'
+      })
+
+      Combo.belongsToMany(models.Drink, {
         through: 'ComboDrinks',
-        as: 'combos',
-        foreignKey: 'drinkId'
+        as: 'drinks',
+        foreignKey: 'comboId'
       })
 
     }
   }
-  Drink.init({
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
+  Combo.init({
     name: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    price: {
+    price_old: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    price_new: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
@@ -42,8 +47,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'Drink',
-    tableName: 'Drinks'
+    modelName: 'Combo',
+    tableName: 'Combos'
   });
-  return Drink;
+  return Combo;
 };

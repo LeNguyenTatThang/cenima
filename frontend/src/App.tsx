@@ -36,6 +36,7 @@ import Food from './pages/dashboard/Food/Food'
 import Price from './pages/dashboard/Price/Price'
 import Promotions from './pages/client/Promotions'
 import Drink from './pages/dashboard/Drink/Drink'
+import Combo from './pages/dashboard/Combo/Combo'
 function App() {
 
   return (
@@ -75,6 +76,7 @@ function App() {
               <Route path="/dashboard/food" element={<Layout> <Food /> </Layout>} />
               <Route path="/dashboard/ticket" element={<Layout> <Price /> </Layout>} />
               <Route path="/dashboard/drink" element={<Layout> <Drink /> </Layout>} />
+              <Route path="/dashboard/combo" element={<Layout> <Combo /> </Layout>} />
             </Routes>
           </AppLoader>
         </div>
